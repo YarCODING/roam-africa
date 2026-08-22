@@ -1,0 +1,57 @@
+{% extends 'layouts/box.html' %}
+
+{% block content %}
+
+<h1 class="text-2xl font-bold mb-6">Налаштування акаунта</h1>
+
+<div class="overflow-x-auto">
+    <table class="table w-full">
+        <tbody>
+            <tr>
+                <td class="font-bold text-base">Електронна пошта</td>
+                <td id="email-address">
+                    {% if user.email %}{{ user.email }}{% else %}Не вказано{% endif %}
+                </td>
+                <td class="text-right">
+                    <a id="email-edit" class="btn btn-link btn-xs text-primary p-0"
+                       hx-get="{% url 'profile-emailchange' %}"
+                       hx-target="#email-address"
+                       hx-swap="innerHTML">
+                        Змінити
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    {% if user.emailaddress_set.first.verified %}
+                    <span class="badge badge-success gap-1">Підтверджено</span>
+                    {% else %}
+                    <span class="badge badge-warning gap-1">Не підтверджено</span>
+                    {% endif %}
+                </td>
+                <td class="text-right">
+                    {% if not user.emailaddress_set.first.verified %}
+                    <a href="{% url 'profile-emailverify' %}" class="btn btn-link btn-xs text-primary p-0">
+                        Підтвердити
+                    </a>
+                    {% endif %}
+                </td>
+            </tr>
+
+            <tr>
+                <td class="font-bold text-base text-error">Видалення акаунта</td>
+                <td class="text-sm opacity-70">
+                    Після видалення акаунт буде втрачено назавжди.
+                </td>
+                <td class="text-right">
+                    <a href="{% url 'profile-delete' %}" class="btn btn-error btn-xs">
+                        Видалити
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

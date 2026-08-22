@@ -1,0 +1,37 @@
+{% load allauth %}
+<div class="form-control w-full mb-3">
+    {% if attrs.field.field.widget.input_type == "checkbox" %}
+        <label class="label cursor-pointer justify-start gap-3">
+            <input type="checkbox" 
+                   name="{{ attrs.field.name }}" 
+                   id="{{ attrs.field.id_for_label }}"
+                   class="checkbox checkbox-primary"
+                   {% if attrs.field.value %}checked{% endif %}>
+            <span class="label-text font-medium">{{ attrs.field.label }}</span>
+        </label>
+    {% else %}
+        <label class="label" for="{{ attrs.field.id_for_label }}">
+            <span class="label-text font-medium">{{ attrs.field.label }}</span>
+        </label>
+
+        <input type="{{ attrs.field.field.widget.input_type|default:'text' }}" 
+               name="{{ attrs.field.html_name }}" 
+               id="{{ attrs.field.id_for_label }}" 
+               value="{{ attrs.field.value|default:'' }}" 
+               class="input input-bordered w-full" 
+               placeholder="{{ attrs.field.field.widget.attrs.placeholder|default:'' }}">
+    {% endif %}
+
+    {% if attrs.field.errors %}
+        <label class="label">
+            <span class="label-text-alt text-error">{{ attrs.field.errors.0 }}</span>
+        </label>
+    {% endif %}
+    
+    <!-- Текст подсказки / требований к паролю -->
+    {% if attrs.field.help_text %}
+        <div class="text-xs opacity-60 space-y-1 my-2 leading-relaxed">
+            {{ attrs.field.help_text|safe }}
+        </div>
+    {% endif %}
+</div>

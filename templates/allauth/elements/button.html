@@ -1,0 +1,10 @@
+{% load allauth %}
+{% if attrs.href %}
+    <a href="{{ attrs.href }}" class="btn btn-primary w-full">
+        {% slot %}{% endslot %}
+    </a>
+{% else %}
+    <button type="{{ attrs.type|default:'submit' }}" class="btn btn-primary w-full">
+        {% slot %}{% endslot %}
+    </button>
+{% endif %}

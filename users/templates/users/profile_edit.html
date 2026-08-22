@@ -1,0 +1,71 @@
+{% extends 'layouts/box.html' %}
+
+{% block content %}
+
+{% if onboarding %}
+<h1 class="mb-4 text-2xl font-bold">Заповніть свій профіль</h1>
+{% else %}
+<h1 class="mb-4 text-2xl font-bold">Редагувати профіль</h1>
+{% endif %}
+
+<div class="text-center flex flex-col items-center">
+    <img id="avatar" class="w-36 h-36 rounded-full object-cover my-4" src="{{ user.avatar }}" />
+    <div class="text-center max-w-md">
+        <h1 id="displayname" class="text-xl font-bold">{{ user.displayname|default:"" }}</h1>
+        <div class="text-base-content/70 mb-4 -mt-1">@{{ user.username }}</div>
+    </div>
+</div>
+
+<form method="POST" enctype="multipart/form-data" class="flex flex-col gap-3">
+    {% csrf_token %}
+    
+    {% for field in form %}
+    <div class="form-control w-full">
+        <label class="label pb-1">
+            <span class="label-text font-medium">{{ field.label }}</span>
+        </label>
+        {{ field }}
+        {% if field.errors %}
+        <span class="text-error text-xs mt-1">{{ field.errors.0 }}</span>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <div class="mt-4 flex items-center">
+        <button class="btn btn-primary" type="submit">Зберегти</button>
+        {% if onboarding %}
+        <a class="btn btn-ghost ml-2" href="{% url 'home' %}">Пропустити</a>
+        {% else %}
+        <a class="btn btn-ghost ml-2" href="{{ request.META.HTTP_REFERER }}">Скасувати</a>
+        {% endif %}
+    </div>
+</form>
+
+
+
+<script>
+    
+    // This updates the avatar
+    const fileInput = document.querySelector('input[type="file"]');
+
+    fileInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    const image = document.querySelector('#avatar');
+
+    if (file && file.type.includes('image')) {
+        const url = URL.createObjectURL(file);
+        image.src = url;
+    }
+    });
+
+    // This updates the name
+    const display_nameInput = document.getElementById('id_displayname');
+    const display_nameOutput = document.getElementById('displayname');
+
+    display_nameInput.addEventListener('input', (event) => {
+        display_nameOutput.innerText = event.target.value;
+    });
+
+</script>
+
+{% endblock %}
