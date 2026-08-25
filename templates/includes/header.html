@@ -22,7 +22,14 @@
             </ul>
         </div>
 
+
         <div class="navbar-end gap-2">
+            <label class="toggle text-base-content">
+                <input type="checkbox" id="theme-toggle" />
+                <i class="fa-solid fa-sun text-[10px] w-3.5 h-3.5 flex items-center justify-center"></i>
+                <i class="fa-solid fa-moon text-[10px] w-3.5 h-3.5 flex items-center justify-center"></i>
+            </label>
+
             {% if request.user.is_authenticated %}
                 <div class="relative" id="user-dropdown">
                     <button type="button" id="dropdown-btn" class="btn btn-outline rounded-full px-5 min-h-10 h-10 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider border-base-content/30 hover:bg-base-content hover:text-base-100 transition-all">

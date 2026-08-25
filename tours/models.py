@@ -1,11 +1,9 @@
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
-from django.utils.text import slugify
-
 
 
 class Country(models.Model):
     name = models.CharField("Назва країни", max_length=100)
+    code = models.CharField("ISO код", max_length=2, unique=True)
     slug = models.SlugField("URL slug", unique=True)
     description = models.TextField("Опис країни", blank=True)
     cover_image = models.ImageField("Обкладинка", upload_to="countries/")
@@ -16,8 +14,7 @@ class Country(models.Model):
         ordering = ["name"]
 
     def __str__(self):
-        return self.name
-
+        return f"{self.name} ({self.code})"
 
 
 class Tour(models.Model):

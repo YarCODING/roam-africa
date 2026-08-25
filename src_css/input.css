@@ -105,6 +105,14 @@ h2 {
     @apply text-xl font-bold mb-2
 }
 
+html{
+    height: 100%;
+}
+
+content {
+    min-height: calc(100vh - 30px - 18px);
+}
+
 ::selection {
   background: var(--color-primary);
   color: var(--color-primary-content);

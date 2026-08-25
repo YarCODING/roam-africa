@@ -1,0 +1,115 @@
+<div 
+    x-data="{
+        hoveredCountry: null,
+        tooltipX: 0,
+        tooltipY: 0
+    }"
+    class="relative w-full max-w-3xl mx-auto p-2 flex justify-center items-center">
+    <div 
+        x-show="hoveredCountry" 
+        x-cloak
+        :style="`top: ${tooltipY + 15}px; left: ${tooltipX + 15}px;`"
+        class="fixed z-50 pointer-events-none transition-opacity duration-150 rounded-(--radius-box)"
+    >
+        <div class="card card-compact w-64 bg-base-300 shadow-xl border border-base-200">
+            <template x-if="hoveredCountry?.image">
+                <figure class="h-28 overflow-hidden">
+                    <img :src="hoveredCountry.image" :alt="hoveredCountry.name" class="w-full h-full object-cover rounded-t-(--radius-box)" />
+                </figure>
+            </template>
+            <div class="card-body">
+                <h3 class="card-title text-base" x-text="hoveredCountry?.name"></h3>
+                <p class="text-xs text-base-content/70" x-text="hoveredCountry?.description"></p>
+                <div class="card-actions justify-end mt-1">
+                    <div class="aura aura-glow aura-sm text-primary">
+                    <span class="badge badge-primary">Перейти</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="africa-map-container" class="w-full h-full max-h-[65vh] flex justify-center">
+        {% include 'tours/includes/africa.svg' %}
+    </div>
+</div>
+
+<style>
+    [x-cloak] { display: none !important; }
+
+    #africa-map-container svg {
+        width: auto;
+        height: 100%;
+        max-height: 65vh;
+        margin: 0 auto;
+    }
+
+    #africa-map-container svg path {
+        fill: var(--color-base-content) !important;
+        opacity: 0.3;
+        stroke: #1f2937;
+        stroke-width: 0.5px;
+        transition: all 0.2s ease;
+        cursor: not-allowed;
+    }
+
+    #africa-map-container svg path.country-active {
+        fill: var(--color-primary) !important;
+        opacity: 1;
+        cursor: pointer;
+    }
+
+    #africa-map-container svg path.country-active:hover {
+        fill: #ea580c !important;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const countriesData = {{ countries_json|safe }};
+        const svgPaths = document.querySelectorAll("#africa-map-container svg path");
+        
+        const mapContainer = document.querySelector('[x-data]');
+
+        svgPaths.forEach(path => {
+            const code = path.getAttribute("id") || path.getAttribute("data-id");
+            
+            if (code && countriesData[code]) {
+                path.classList.add("country-active");
+
+                path.addEventListener("mouseenter", (e) => {
+                    const alpineData = Alpine.$data(mapContainer);
+                    alpineData.hoveredCountry = countriesData[code];
+                });
+
+                path.addEventListener("mouseleave", () => {
+                    const alpineData = Alpine.$data(mapContainer);
+                    alpineData.hoveredCountry = null;
+                });
+
+                path.addEventListener("mousemove", (e) => {
+                    const alpineData = Alpine.$data(mapContainer);
+                    
+                    const cardWidth = 270;
+                    const cardHeight = 250;
+                    
+                    if (e.clientX + cardWidth > window.innerWidth) {
+                        alpineData.tooltipX = e.clientX - cardWidth - 15;
+                    } else {
+                        alpineData.tooltipX = e.clientX + 15;
+                    }
+
+                    if (e.clientY + cardHeight > window.innerHeight) {
+                        alpineData.tooltipY = e.clientY - cardHeight - 15;
+                    } else {
+                        alpineData.tooltipY = e.clientY + 15;
+                    }
+                });
+
+                path.addEventListener("click", () => {
+                    window.location.href = countriesData[code].url;
+                });
+            }
+        });
+    });
+</script>

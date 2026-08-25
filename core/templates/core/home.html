@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<section class="relative h-screen w-full -mt-18 overflow-hidden flex items-center justify-center text-white">
+<section id="hero" class="relative h-[101vh] w-full -mt-18 overflow-hidden flex items-center justify-center text-white">
   
   <video 
     autoplay 
@@ -42,6 +42,56 @@
     </div>
   </div>
 
+</section>
+
+
+
+<section id="map" class="py-12">
+        <div class="text-center max-w-5xl mx-auto mb-12">
+          <h2 class="text-3xl! md:text-5xl! font-black uppercase tracking-wide">
+            ОБЕРІТЬ <span class="text-accent">НАПРЯМОК</span> МРІЇ, ВСЕ ІНШЕ МИ БЕРЕМО НА СЕБЕ
+          </h2>
+        </div>
+        
+        {% include 'tours/map.html' %}
+</section>
+
+
+
+<section id="reviews" class="py-12 bg-base-200">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="text-center mb-8">
+      <h2 class="text-3xl! md:text-5xl! font-black uppercase tracking-wide">Відгуки наших <span class="text-accent">мандрівників</span></h2>
+      <p class="text-sm opacity-70 mt-2">Незабутні пригоди та емоції з усього Африканського континенту</p>
+    </div>
+
+    <div class="carousel carousel-center w-full p-4 space-x-6 rounded-box scroll-smooth">
+      {% for review in reviews %}
+        <div id="slide{{ forloop.counter }}" class="carousel-item w-80 md:w-96 relative">
+          <div class="card bg-base-100 shadow-xl w-full">
+            <figure class="h-56 overflow-hidden">
+              <img 
+                src="{% static 'images/reviews/' %}{{ review.image }}" 
+                alt="{{ review.country }}" 
+                class="w-full h-full object-cover" 
+              />
+            </figure>
+            <div class="card-body">
+              <div class="flex justify-between items-center mb-2">
+                <span class="badge badge-warning font-semibold">{{ review.country }}</span>
+              </div>
+              <p class="text-sm opacity-80 italic line-clamp-4">
+                {{ review.text }}
+              </p>
+              <div class="card-actions justify-end mt-4 pt-4 border-t border-base-300">
+                <span class="font-semibold text-base-content">— {{ review.author }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
 </section>
 
 {% endblock %}

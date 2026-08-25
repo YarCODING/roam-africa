@@ -23,5 +23,5 @@ class CustomUser(AbstractUser):
         try:
             avatar = self.image.url
         except:
-            avatar = static('images/avatar.svg')
+            avatar = static('images/avatar.png')
         return avatar

@@ -1,1 +1,22 @@
-<h3>footer</h3>
+{% load static %}
+
+<footer class="w-full base-200 text-base-content">
+    <div class="max-w-7xl mx-auto px-6 py-16 flex flex-col items-center">
+        <div class="flex items-center space-x-3 mb-6">
+            <div>
+            <a class="flex items-center gap-2" href="{% url 'home' %}">
+                <img class="h-8" src="{% static 'images/logo.png' %}" alt="Logo"/>
+                <span class="text-lg font-bold font-heading tracking-tight leading-tight">Roam Africa</span>
+            </a>
+        </div>
+        </div>
+        <p class="text-center max-w-xl text-sm font-normal leading-relaxed">
+            Подорожі, що змінюють уявлення про світ
+        </p>
+    </div>
+    <div class="border-t border-base-300">
+        <div class="max-w-7xl mx-auto px-6 py-6 text-center text-sm font-normal">
+            <a href="{% url 'home' %}">Roam Africa</a> &copy;{% now "Y" %}. All rights reserved.
+        </div>
+    </div>
+</footer>
