@@ -1,5 +1,6 @@
 from django.db import models
-
+from django.utils import timezone
+from datetime import timedelta
 
 class Country(models.Model):
     name = models.CharField("Назва країни", max_length=100)
@@ -56,6 +57,10 @@ class Tour(models.Model):
     is_active = models.BooleanField("Опубліковано", default=True, db_index=True)
     created_at = models.DateTimeField("Дата створення", auto_now_add=True)
     updated_at = models.DateTimeField("Дата оновлення", auto_now=True)
+
+    @property
+    def is_new(self):
+        return self.created_at >= timezone.now() - timedelta(days=7)
 
     class Meta:
         verbose_name = "Тур"

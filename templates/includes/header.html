@@ -40,9 +40,12 @@
                     
                     <div id="dropdown-menu" class="hidden absolute right-0 mt-2 bg-base-100 text-base-content shadow-lg rounded-2xl w-52 p-2 z-50 border border-base-300">
                         <ul class="menu menu-sm">
-                            <li><a href="{% url 'profile' %}"><i class="fa-regular fa-user"></i> Мій профіль</a></li>
-                            <li><a href="{% url 'profile-edit' %}"><i class="fa-solid fa-pen-to-square"></i> Редагувати профіль</a></li>
-                            <li><a href="{% url 'profile-settings' %}"><i class="fa-solid fa-gear"></i> Налаштування</a></li>
+                            {% if user.is_staff %}
+                            <li><a href="{% url 'admin:index' %}" class="bg-secondary/80 hover:bg-secondary"><i class="fa-solid fa-database"></i> Адміністрування </a></li>
+                            {% endif %}
+                            <li><a href="{% url 'profile' %}"><i class="fa-regular fa-user"></i> Мій профіль </a></li>
+                            <li><a href="{% url 'profile-edit' %}"><i class="fa-solid fa-pen-to-square"></i> Редагувати профіль </a></li>
+                            <li><a href="{% url 'profile-settings' %}"><i class="fa-solid fa-gear"></i> Налаштування </a></li>
                             <div class="divider my-1"></div>
                             <li><a href="{% url 'account_logout' %}" class="text-error"><i class="fa-solid fa-right-from-bracket"></i> Вийти</a></li>
                         </ul>

@@ -9,7 +9,7 @@ def home_view(request):
     countries_data = {
         country.code: {
             "name": country.name,
-            "url": "#", # reverse("tours:country_detail", kwargs={"slug": country.slug}) if hasattr(country, 'slug') else "#"
+            "url": reverse("country_detail", kwargs={"slug": country.slug}) if hasattr(country, 'slug') else "#",
             "image": country.cover_image.url if country.cover_image else None,
             "description": country.description[:100] + "..." if country.description else ""
         }

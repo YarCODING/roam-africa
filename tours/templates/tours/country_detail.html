@@ -1,0 +1,40 @@
+{% extends 'layouts/blank.html' %}
+{% load static %}
+
+{% block content %}
+
+<section id="country-hero" class="relative h-[101vh] w-full -mt-18 overflow-hidden flex items-center justify-center text-white">
+
+	{% if country.cover_image %}
+		<img src="{{ country.cover_image.url }}" alt="country" class="absolute inset-0 w-full h-full object-cover z-0">
+	{% else %}
+		<img src="{% static 'images/default_cover.jpg' %}" alt="default" class="absolute inset-0 w-full h-full object-cover z-0">
+	{% endif %}
+
+	<div class="absolute inset-0 bg-black/40 bg-linear-to-t from-black/80 via-black/20 to-black/50 z-10"></div>
+
+	<div class="relative z-20 container mx-auto px-6 text-center"> 
+	<h1 class="text-2xl! sm:text-4xl! md:text-6xl! lg:text-8xl! font-black! uppercase text-white mb-6 tracking-wider">
+		{{ country.name }}
+	</h1>
+
+	<p class="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto font-light">
+		{{ country.description }}
+	</p>
+	</div>
+
+</section>
+
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        {% for tour in tours %}
+            {% include "tours/tour_card.html" with tour=tour %}
+        {% empty %}
+            <div class="col-span-full text-center py-12 text-gray-400">
+                <p class="text-lg">Тури до цієї країни поки що не знайдено.</p>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

@@ -6,6 +6,15 @@
 <div class="text-center">
     <h1>{{ profile.name }}</h1>
     <div class="text-gray-400 mb-2 -mt-3">@{{ profile.username }}</div>
+    {% if profile.is_superuser %}
+        <span class="badge badge-primary font-heading">
+            <i class="fa-solid fa-crown"></i> Автор
+        </span>
+    {% elif profile.is_staff %}
+        <span class="badge badge-secondary font-heading">
+            <i class="fa-solid fa-user-tie"></i> Персонал
+        </span>
+    {% endif %}
     {% if profile.info %}
     <div class="mt-8">{{ profile.info|linebreaksbr }}</div>
     {% endif %}  
