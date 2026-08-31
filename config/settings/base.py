@@ -26,6 +26,7 @@ INSTALLED_APPS = [
 
     'allauth',
     'allauth.account',
+    'django_countries',
 ]
 
 MIDDLEWARE = [
@@ -56,6 +57,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'tours.context_processors.countries_processor',
             ],
         },
     },

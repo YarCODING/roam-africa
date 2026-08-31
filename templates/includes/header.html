@@ -14,8 +14,24 @@
         </div>
 
         <div class="navbar-center hidden lg:flex">
-            <ul class="menu menu-horizontal px-1 gap-4 font-medium uppercase tracking-wider text-xs">
-                <li><a href="#" class="hover:text-primary transition-colors">Подорожі</a></li>
+            <ul class="menu menu-horizontal px-1 gap-2 font-medium uppercase tracking-wider text-xs">  
+                <li>
+                    <details>
+                        <summary class="hover:text-primary transition-colors">Напрямки</summary>
+                        <ul class="p-2 bg-base-100 rounded-box w-48 shadow-lg z-50 border border-base-300 capitalize font-normal text-sm">
+                            {% for country in header_countries %}
+                                <li>
+                                    <a href="{% url 'country_detail' country.slug %}">
+                                        {{ country.name }}
+                                    </a>
+                                </li>
+                            {% empty %}
+                                <li><span class="text-base-content/50">Немає доступних країн</span></li>
+                            {% endfor %}
+                        </ul>
+                    </details>
+                </li>
+
                 <li><a href="#" class="hover:text-primary transition-colors">Відгуки</a></li>
                 <li><a href="#" class="hover:text-primary transition-colors">Про нас</a></li>
                 <li><a href="#" class="hover:text-primary transition-colors">Блог</a></li>
@@ -30,16 +46,15 @@
                 <i class="fa-solid fa-moon text-[10px] w-3.5 h-3.5 flex items-center justify-center"></i>
             </label>
 
-            {% if request.user.is_authenticated %}
-                <div class="relative" id="user-dropdown">
-                    <button type="button" id="dropdown-btn" class="btn btn-outline rounded-full px-5 min-h-10 h-10 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider border-base-content/30 hover:bg-base-content hover:text-base-100 transition-all">
-                        <img class="h-6 w-6 rounded-full object-cover" src="{{ user.avatar }}" alt="Avatar"/>
-                        <span>{{ user.name }}</span>
-                        <i id="dropdown-arrow" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300"></i>
-                    </button>
-                    
-                    <div id="dropdown-menu" class="hidden absolute right-0 mt-2 bg-base-100 text-base-content shadow-lg rounded-2xl w-52 p-2 z-50 border border-base-300">
-                        <ul class="menu menu-sm">
+                {% if request.user.is_authenticated %}
+                    <details class="dropdown dropdown-end">
+                        <summary class="btn btn-outline rounded-full px-5 min-h-10 h-10 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider border-base-content/30 hover:bg-base-content hover:text-base-100 transition-all cursor-pointer list-none">
+                            <img class="h-6 w-6 rounded-full object-cover" src="{{ user.avatar }}" alt="Avatar"/>
+                            <span>{{ user.name }}</span>
+                            <i class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300"></i>
+                        </summary>
+                        
+                        <ul class="dropdown-content menu menu-sm bg-base-100 text-base-content shadow-lg rounded-2xl w-52 p-2 z-50 border border-base-300 mt-2">
                             {% if user.is_staff %}
                             <li><a href="{% url 'admin:index' %}" class="bg-secondary/80 hover:bg-secondary"><i class="fa-solid fa-database"></i> Адміністрування </a></li>
                             {% endif %}
@@ -49,9 +64,8 @@
                             <div class="divider my-1"></div>
                             <li><a href="{% url 'account_logout' %}" class="text-error"><i class="fa-solid fa-right-from-bracket"></i> Вийти</a></li>
                         </ul>
-                    </div>
-                </div>
-            {% else %}
+                    </details>
+                {% else %}
                 <a href="{% url 'account_login' %}" class="btn btn-ghost btn-sm rounded-full uppercase text-xs">Увійти</a>
                 <a href="{% url 'account_signup' %}?next={% url 'profile-onboarding' %}" class="btn btn-outline btn-primary rounded-full px-6 min-h-10 h-10 text-xs uppercase tracking-wider">
                     Реєстрація
@@ -61,26 +75,3 @@
         
     </div>
 </header>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const btn = document.getElementById('dropdown-btn');
-        const menu = document.getElementById('dropdown-menu');
-        const arrow = document.getElementById('dropdown-arrow');
-
-        if (btn && menu) {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                menu.classList.toggle('hidden');
-                arrow?.classList.toggle('rotate-180');
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!menu.contains(e.target) && !btn.contains(e.target)) {
-                    menu.classList.add('hidden');
-                    arrow?.classList.remove('rotate-180');
-                }
-            });
-        }
-    });
-</script>

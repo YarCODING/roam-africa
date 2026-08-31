@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from users.views import profile_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,6 +26,7 @@ urlpatterns = [
     path("", include("core.urls")),
     path('profile/', include('users.urls')),
     path("", include('tours.urls')),
+    path('@<username>/', profile_view, name="profile"),
 ]
 
 if settings.DEBUG:

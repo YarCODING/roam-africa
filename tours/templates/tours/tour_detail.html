@@ -1,0 +1,442 @@
+{% extends "layouts/blank.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8 space-y-10">
+
+  <section class="space-y-4">
+	<div class="flex flex-wrap items-center gap-2">
+	  <a class="link link-primary link-hover" href="{% url 'country_detail' tour.country.slug %}">
+		<i class="fa-solid fa-location-dot"></i>
+		{{ tour.country.name }}
+	  </a>
+	</div>
+
+	<h1 class="text-3xl md:text-5xl font-black tracking-tight text-base-content">
+	  {{ tour.title }}
+	  {% if tour.is_new %}
+        <div class="badge badge-secondary tracking-wider shrink-0 ml-4">NEW</div>
+      {% endif %}
+	</h1>
+	<p class="text-lg md:text-xl text-base-content/70 max-w-4xl leading-relaxed">
+	  {{ tour.description }}
+	</p>
+  </section>
+
+  <section class="grid grid-cols-1 md:grid-cols-4 gap-4 h-105 md:h-125">
+	<div class="md:col-span-3 h-full relative rounded-3xl overflow-hidden shadow-lg group">
+	  {% if tour.cover_image %}
+		<img src="{{ tour.cover_image.url }}" alt="{{ tour.title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+	  {% else %}
+		<div class="w-full h-full bg-base-300 flex items-center justify-center text-base-content/40">Немає обкладинки</div>
+	  {% endif %}
+	</div>
+
+	<div class="hidden md:flex flex-col gap-4 h-full">
+	  {% for img in tour.images.all|slice:":2" %}
+		<div class="h-1/2 relative rounded-2xl overflow-hidden shadow-sm group">
+		  <img src="{{ img.image.url }}" alt="{{ img.caption|default:tour.title }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+		</div>
+	  {% empty %}
+		<div class="h-full rounded-2xl bg-base-200 border border-base-300 flex items-center justify-center text-xs text-base-content/40 p-4 text-center">
+		  Галерея поповниться незабаром
+		</div>
+	  {% endfor %}
+	</div>
+  </section>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+
+	<div class="lg:col-span-2 space-y-8">
+
+	  <section class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+		<div class="bg-base-100 p-4 rounded-2xl flex items-center gap-4">
+		  <div class="p-3 bg-primary/10 text-primary rounded-xl">
+			<i class="fa-regular fa-clock"></i>
+		  </div>
+		  <div>
+			<div class="text-xs text-base-content/60 font-medium">Тривалість</div>
+			<div class="text-lg font-bold text-base-content">{{ tour.duration_days }} днів</div>
+		  </div>
+		</div>
+
+		<div class="bg-base-100 p-4 rounded-2xl flex items-center gap-4">
+		  <div class="p-3 bg-secondary/10 text-secondary rounded-xl">
+			<i class="fa-solid fa-people-group"></i>
+		  </div>
+		  <div>
+			<div class="text-xs text-base-content/60 font-medium">Група</div>
+			<div class="text-lg font-bold text-base-content">до {{ tour.group_size_max }} осіб</div>
+		  </div>
+		</div>
+
+		<div class="bg-base-100 p-4 rounded-2xl flex items-center gap-4 col-span-2 sm:col-span-1">
+
+		{% if tour.difficulty == "easy" %}
+			<div class="p-3 bg-success/10 text-success rounded-xl">
+			<i class="fa-solid fa-shoe-prints text-xl"></i>
+			</div>
+		{% elif tour.difficulty == "medium" %}
+			<div class="p-3 bg-info/10 text-info rounded-xl">
+			<i class="fa-solid fa-person-hiking text-xl"></i>
+			</div>
+		{% elif tour.difficulty == "hard" %}
+			<div class="p-3 bg-warning/10 text-warning rounded-xl">
+			<i class="fa-solid fa-mountain text-xl"></i>
+			</div>
+		{% elif tour.difficulty == "extreme" %}
+			<div class="p-3 bg-error/10 text-error rounded-xl">
+			<i class="fa-solid fa-skull text-xl"></i>
+			</div>
+		{% endif %}
+
+		<div>
+			<div class="text-xs text-base-content/60 font-medium">Складність</div>
+			<div class="text-lg font-bold text-base-content">
+			{% if tour.difficulty == "easy" %}
+				Легкий
+			{% elif tour.difficulty == "medium" %}
+				Середній
+			{% elif tour.difficulty == "hard" %}
+				Складний
+			{% elif tour.difficulty == "extreme" %}
+				Екстрім
+			{% endif %}
+			</div>
+		</div>
+
+		</div>
+	  </section>
+
+	  <section class="bg-base-100 p-6 md:p-8 rounded-3xl space-y-4">
+		<h2 class="text-2xl font-bold text-base-content flex items-center gap-2">
+		  Про тур
+		</h2>
+		<div class="prose max-w-none text-base-content/80 leading-relaxed space-y-4">
+		  {% if tour.full_content %}
+			{{ tour.full_content|linebreaks }}
+		  {% else %}
+			<p>{{ tour.description }}</p>
+		  {% endif %}
+		</div>
+	  </section>
+
+
+	<section class="bg-base-100 p-6 md:p-8 rounded-3xl space-y-4">
+	<h2 class="text-2xl font-bold text-base-content flex items-center gap-2">
+		<i class="fa-solid fa-camera text-primary"></i> Галерея туру
+	</h2>
+
+	{% if tour.images.all %}
+		<div class="relative group">
+		<div class="swiper tour-gallery-swiper rounded-2xl overflow-hidden h-90 sm:h-106 md:h-120 cursor-pointer">
+			<div class="swiper-wrapper">
+			{% for img in tour.images.all %}
+				<div class="swiper-slide relative bg-base-300"
+				onclick="openImageModal('{{ img.image.url }}', '{{ img.caption }}')">
+				<img 
+					src="{{ img.image.url }}" 
+					alt="{{ img.caption|default:tour.title }}" 
+					class="w-full h-full object-cover"
+					loading="lazy"
+				/>
+				{% if img.caption %}
+					<div class="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/80 via-black/20 to-transparent p-4 md:p-6 text-white">
+					<p class="text-sm md:text-base font-medium">{{ img.caption }}</p>
+					</div>
+				{% endif %}
+				</div>
+			{% endfor %}
+			</div>
+
+			<div class="swiper-pagination"></div>
+		</div>
+
+		<button class="swiper-button-prev-custom btn btn-circle btn-sm md:btn-md btn-neutral/80 hover:btn-neutral absolute left-3 top-1/2 -translate-y-1/2 z-10 shadow-lg border-none">
+			<i class="fa-solid fa-chevron-left"></i>
+		</button>
+		<button class="swiper-button-next-custom btn btn-circle btn-sm md:btn-md btn-neutral/80 hover:btn-neutral absolute right-3 top-1/2 -translate-y-1/2 z-10 shadow-lg border-none">
+			<i class="fa-solid fa-chevron-right"></i>
+		</button>
+		</div>
+	{% else %}
+		<div class="text-center py-8 bg-base-200/50 rounded-2xl border border-dashed border-base-300 text-base-content/50 text-sm">
+		Фотографії для цього туру скоро з'являться.
+		</div>
+	{% endif %}
+	</section>
+
+
+	  <div class="bg-base-100 p-6 md:p-8 rounded-3xl space-y-6">
+		<h2 class="text-2xl font-bold text-base-content flex items-center gap-2">
+			Програма туру по днях
+		</h2>
+
+		<div class="space-y-3">
+			{% for day in tour.itinerary_days.all %}
+			<div class="collapse collapse-plus bg-base-200/50 rounded-2xl transition-all hover:border-primary/30">
+				<input type="checkbox" name="itinerary-accordion" {% if forloop.first %}checked{% endif %} /> 
+				
+				<div class="collapse-title text-base md:text-lg font-bold text-base-content flex items-center gap-3 pr-12">
+				<span class="badge badge-primary font-black px-3 py-3 rounded-xl shrink-0">
+					День {{ day.day_number }}
+				</span>
+				<span class="truncate">{{ day.title }}</span>
+				</div>
+
+				<div class="collapse-content space-y-4 pt-2 text-base-content/80 text-sm md:text-base leading-relaxed">
+				<p>{{ day.description|linebreaksbr }}</p>
+
+				{% if day.accommodation or day.meals %}
+					<div class="flex flex-wrap gap-2 pt-2 border-t border-base-300/60 text-xs md:text-sm">
+					{% if day.accommodation %}
+						<span class="badge badge-ghost gap-1.5 py-3 rounded-lg">
+						<i class="fa-solid fa-hotel text-primary"></i>
+						<span class="font-semibold">Проживання:</span> {{ day.accommodation }}
+						</span>
+					{% endif %}
+
+					{% if day.meals %}
+						<span class="badge badge-ghost gap-1.5 py-3 rounded-lg">
+						<i class="fa-solid fa-utensils text-secondary"></i>
+						<span class="font-semibold">Харчування:</span> {{ day.meals }}
+						</span>
+					{% endif %}
+					</div>
+				{% endif %}
+				</div>
+			</div>
+			{% empty %}
+			<div class="text-center py-6 text-base-content/50 text-sm">
+				Детальна програма по днях для цього туру ще додається.
+			</div>
+			{% endfor %}
+		</div>
+		</div>
+
+
+
+	  <section class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+			<div class="bg-base-100 p-6 md:p-8 rounded-3xl border border-success/30 shadow-sm space-y-4">
+				<h3 class="text-xl font-bold text-success flex items-center gap-2">
+				<div class="p-2 rounded-xl">
+					<i class="fa-solid fa-circle-check"></i>
+				</div>
+				У вартість входить
+				</h3>
+				
+				<ul class="space-y-3 text-base-content/80 text-sm md:text-base">
+				{% for item in tour.inclusions.all %}
+					{% if item.is_included %}
+					<li class="flex items-start gap-3">
+						<i class="fa-solid fa-check text-success mt-1 shrink-0"></i>
+						<span>{{ item.text }}</span>
+					</li>
+					{% endif %}
+				{% empty %}
+					<li class="text-xs text-base-content/50 italic">Інформація уточнюється</li>
+				{% endfor %}
+				</ul>
+			</div>
+
+			<div class="bg-base-100 p-6 md:p-8 rounded-3xl border border-error/30 shadow-sm space-y-4">
+				<h3 class="text-xl font-bold text-error flex items-center gap-2">
+				<div class="p-2 rounded-xl">
+					<i class="fa-solid fa-circle-xmark"></i>
+				</div>
+				У вартість не входить
+				</h3>
+				
+				<ul class="space-y-3 text-base-content/80 text-sm md:text-base">
+				{% for item in tour.inclusions.all %}
+					{% if not item.is_included %}
+					<li class="flex items-start gap-3">
+						<i class="fa-solid fa-xmark text-error mt-1 shrink-0"></i>
+						<span>{{ item.text }}</span>
+					</li>
+					{% endif %}
+				{% empty %}
+					<li class="text-xs text-base-content/50 italic">Інформація уточнюється</li>
+				{% endfor %}
+				</ul>
+			</div>
+		</section>
+
+
+	  <section class="mx-auto p-4">
+		<div>
+			<h3 class="card-title text-lg font-bold mb-2">
+				Перевірка візи в {{ tour.country.name }}
+			</h3>
+
+			<form method="get" action="" class="space-y-4">
+			<div class="form-control w-full">
+				<label class="label" for="{{ form.citizenship.id_for_label }}">
+				<span class="label-text font-medium">{{ form.citizenship.label }}</span>
+				</label>
+				{{ form.citizenship }}
+			</div>
+			</form>
+
+			<div id="visa-loader" class="htmx-indicator flex justify-center py-2">
+			<span class="loading loading-spinner loading-md text-primary"></span>
+			</div>
+
+			<div id="visa-result-container" class="mt-2">
+			{% include 'tours/includes/visa_result.html' %}
+			</div>
+
+		</div>
+		</section>
+
+
+	  <section class="bg-base-100 p-6 md:p-8 rounded-3xl space-y-6">
+		<h2 class="text-2xl font-bold text-base-content">Розклад заїздів</h2>
+
+		<div class="space-y-3">
+		  {% for date in tour.dates.all %}
+			<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-2xl bg-base-200/50 border border-base-200 gap-4 transition-all hover:border-primary/30">
+
+			  <div class="space-y-1">
+				<div class="font-bold text-base-content text-base">
+				  {{ date.start_date|date:"d.m.Y" }} — {{ date.end_date|date:"d.m.Y" }}
+				</div>
+				<div class="flex items-center gap-2">
+				  {% if date.status == 'open' %}
+					<span class="badge badge-success badge-xs"></span>
+					<span class="text-xs text-base-content/70">Набір відкрито (місць: {{ date.available_seats }})</span>
+				  {% elif date.status == 'few_left' %}
+					<span class="badge badge-warning badge-xs"></span>
+					<span class="text-xs text-warning font-semibold">Мало місць (залишилось: {{ date.available_seats }})</span>
+				  {% elif date.status == 'sold_out' %}
+					<span class="badge badge-error badge-xs"></span>
+					<span class="text-xs text-base-content/50">Місць немає</span>
+				  {% elif date.status == 'canceled' %}
+					<span class="badge badge-ghost badge-xs"></span>
+					<span class="text-xs text-base-content/50">Скасовано</span>
+				  {% endif %}
+				</div>
+			  </div>
+
+			  <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4">
+				<div class="text-right">
+				  <span class="text-xs text-base-content/60 block">Ціна</span>
+				  <span class="text-lg font-extrabold text-primary">€{{ date.price }}</span>
+				</div>
+
+				{% if date.status != 'sold_out' and date.status != 'canceled' %}
+				  <a href="#booking-form" class="btn btn-primary btn-sm rounded-xl">Обрати</a>
+				{% else %}
+				  <button class="btn btn-disabled btn-sm rounded-xl" disabled>Зайнято</button>
+				{% endif %}
+			  </div>
+
+			</div>
+		  {% empty %}
+			<div class="alert alert-info rounded-2xl">
+			  <span>Наразі немає активних дат заїздів для цього туру.</span>
+			</div>
+		  {% endfor %}
+		</div>
+	  </section>
+	</div>
+
+	<div class="lg:col-span-1 lg:sticky lg:top-6 space-y-6">
+	  <div id="booking-form" class="bg-base-100 p-6 md:p-8 rounded-3xl border border-base-300 shadow-xl space-y-6">
+
+		<div class="border-b border-base-200 pb-4">
+		  <span class="text-xs uppercase font-bold tracking-wider text-base-content/50">Вартість туру</span>
+		  <div class="flex items-baseline gap-1 mt-1">
+			<span class="text-sm font-semibold text-base-content/70">від</span>
+			<span class="text-4xl font-black text-primary">€{{ tour.price_from }}</span>
+			<span class="text-xs text-base-content/60">/ особа</span>
+		  </div>
+		</div>
+
+		<form method="post" action="#" class="space-y-4">
+		  {% csrf_token %}
+
+		  <div class="form-control w-full">
+			<label class="label">
+			  <span class="label-text font-bold">Оберіть дату заїзду</span>
+			</label>
+			<select name="tour_date" class="select select-bordered w-full rounded-xl focus:select-primary" required>
+			  <option value="" disabled selected>Виберіть зі списку...</option>
+			  {% for date in tour.dates.all %}
+				{% if date.status != 'sold_out' and date.status != 'canceled' %}
+				  <option value="{{ date.id }}">
+					{{ date.start_date|date:"d.m" }} - {{ date.end_date|date:"d.m.Y" }} (€{{ date.price }})
+				  </option>
+				{% endif %}
+			  {% endfor %}
+			</select>
+		  </div>
+
+		  <!-- <div class="form-control w-full">
+			<label class="label">
+			  <span class="label-text font-bold">Ваше ім'я</span>
+			</label>
+			<input type="text" name="name" placeholder="Введіть ім'я" class="input input-bordered w-full rounded-xl focus:input-primary" required />
+		  </div>
+
+		  <div class="form-control w-full">
+			<label class="label">
+			  <span class="label-text font-bold">Телефон / Telegram</span>
+			</label>
+			<input type="tel" name="phone" placeholder="+380 99 123 45 67" class="input input-bordered w-full rounded-xl focus:input-primary" required />
+		  </div> -->
+
+		  <button type="submit" class="btn btn-primary btn-block rounded-xl text-base shadow-lg shadow-primary/20">
+			Забронювати тур
+		  </button>
+		</form>
+
+		<div class="pt-2 border-t border-base-200 text-xs text-base-content/60 space-y-2">
+		  <div class="flex items-center gap-2">
+			<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+			</svg>
+			<span>Безкоштовна консультація менеджера</span>
+		  </div>
+		  <div class="flex items-center gap-2">
+			<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+			</svg>
+			<span>Швидке підтвердження бронювання</span>
+		  </div>
+		</div>
+
+	  </div>
+	</div>
+
+  </div>
+</div>
+
+<dialog id="image_modal" class="modal modal-bottom sm:modal-middle bg-black/80 backdrop-blur-sm">
+  <div class="modal-box max-w-5xl w-full p-2 bg-transparent shadow-none relative flex flex-col items-center justify-center max-h-[90vh]">
+    
+    <form method="dialog">
+      <button class="btn btn-sm btn-circle btn-neutral absolute right-3 top-3 z-50 text-white shadow-lg">✕</button>
+    </form>
+
+    <img id="modal_image" src="" alt="" class="max-h-[90vh] min-h-[60vh] w-auto max-w-full object-contain rounded-xl shadow-2xl" />
+    
+    <p id="modal_caption" class="text-white/90 text-sm md:text-base mt-3 text-center px-4 font-medium"></p>
+  </div>
+
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
+
+<script>
+  function openImageModal(src, caption = '') {
+    const modal = document.getElementById('image_modal');
+    const img = document.getElementById('modal_image');
+    const captionEl = document.getElementById('modal_caption');
+
+    img.src = src;
+    captionEl.innerText = caption;
+    modal.showModal();
+  }
+</script>
+{% endblock %}

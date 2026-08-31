@@ -1,0 +1,18 @@
+{% if request.GET.citizenship %}
+  <div class="divider my-2"></div>
+
+  {% if visa_info %}
+    <div class="alert {% if visa_info.is_free %}alert-success{% else %}alert-warning{% endif %} shadow-sm">
+      <div>
+        <span class="font-bold block text-sm">{{ visa_info.status }}</span>
+        {% if visa_info.duration_days %}
+          <span class="text-xs opacity-90">Максимальний термін перебування: {{ visa_info.duration_days }} днів</span>
+        {% endif %}
+      </div>
+    </div>
+  {% else %}
+    <div class="alert alert-error shadow-sm text-sm">
+      <span>Не вдалося отримати дані про візовий режим. Спробуйте пізніше.</span>
+    </div>
+  {% endif %}
+{% endif %}

@@ -5,3 +5,5 @@ django-cleanup
 django-environ
 django-htmx
 pillow
+requests
+django-countries

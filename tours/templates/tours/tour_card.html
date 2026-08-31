@@ -12,7 +12,7 @@
   <div class="card-body p-6 flex flex-col gap-3">
     
     <h2 class="card-title text-xl font-bold justify-between">
-      <a href="#" class="hover:text-primary transition-colors">
+      <a href="{% url 'tour_detail' tour.slug %}" class="hover:text-primary transition-colors">
         {{ tour.title }}
       </a>
       {% if tour.is_new %}
@@ -20,7 +20,7 @@
       {% endif %}
     </h2>
 
-    <p class="line-clamp-2 text-sm text-gray-400 font-light">
+    <p class="line-clamp-2 text-sm text-base-content font-light">
       {{ tour.description }}
     </p>
 
@@ -42,10 +42,10 @@
 
     <div class="card-actions items-center justify-between pt-2 mt-1">
       <div>
-        <span class="text-xs text-gray-400 block">Вартість</span>
+        <span class="text-xs text-base-content block">Вартість</span>
         <span class="text-xl font-extrabold">від {{ tour.price_from }} €</span>
       </div>
-      <a href="#" class="btn btn-primary btn-sm px-4">Детальніше</a>
+      <a href="{% url 'tour_detail' tour.slug %}" class="btn btn-primary btn-sm px-4">Детальніше</a>
     </div>
 
   </div>
