@@ -48,5 +48,9 @@
       <a href="{% url 'tour_detail' tour.slug %}" class="btn btn-primary btn-sm px-4">Детальніше</a>
     </div>
 
+    {% if not tour.is_active %}
+      <span class="text-red-500 font-bold">[Чернетка — доступна лише адміністраторам]</span>
+    {% endif %}
+
   </div>
 </div>

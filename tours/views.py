@@ -5,7 +5,10 @@ from .services import get_visa_requirement
 
 def country_view(request, slug):
     country = get_object_or_404(Country, slug=slug)
-    tours = country.tours.all()
+    if request.user.is_staff:
+        tours = country.tours.all()
+    else:
+        tours = country.tours.published()
 
     return render(request, 'tours/country_detail.html', {
         'country': country,
@@ -14,7 +17,12 @@ def country_view(request, slug):
 
 
 def tour_view(request, slug):
-    tour = get_object_or_404(Tour.objects.select_related('country').prefetch_related('images', 'dates', 'itinerary_days', 'inclusions'), slug=slug)
+    queryset = Tour.objects.all() if request.user.is_staff else Tour.objects.published()
+
+    tour = get_object_or_404(
+        queryset.select_related('country').prefetch_related('images', 'dates', 'itinerary_days', 'inclusions'),
+        slug=slug
+    )
 
     form = VisaCheckForm(request.GET or None)
     visa_info = None

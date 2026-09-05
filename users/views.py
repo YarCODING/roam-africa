@@ -83,9 +83,25 @@ def profile_emailverify(request):
 def profile_delete_view(request):
     user = request.user
     if request.method == "POST":
-        logout(request)
-        user.delete()
-        messages.success(request, 'Account deleted, what a pity')
+        if not user.is_staff:
+            logout(request)
+
+            user.username = f"deleted_user_{user.id}"
+            user.displayname = "[Deleted User]"
+            if user.image:
+                    user.image.delete(save=False) 
+                    user.image = None
+            user.email = f"deleted_{user.id}@deleted.invalid"
+            user.info = None
+            user.set_unusable_password()
+            user.is_active = False
+            user.save()
+        
+            messages.success(request, 'Акаунт видалено, як шкода')
+        else:
+            messages.error(request, "Помилка: неможливо видалити обліковий запис адміністратора.")
+        
+        
         return redirect('home')
     
     return render(request, 'users/profile_delete.html')

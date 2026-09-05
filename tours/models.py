@@ -18,6 +18,13 @@ class Country(models.Model):
         return f"{self.name} ({self.code})"
 
 
+
+
+class TourQuerySet(models.QuerySet):
+    def published(self):
+        return self.filter(is_active=True)
+
+
 class Tour(models.Model):
     class Difficulty(models.TextChoices):
         EASY = "easy", "Легкий"
@@ -57,6 +64,8 @@ class Tour(models.Model):
     is_active = models.BooleanField("Опубліковано", default=True, db_index=True)
     created_at = models.DateTimeField("Дата створення", auto_now_add=True)
     updated_at = models.DateTimeField("Дата оновлення", auto_now=True)
+
+    objects = TourQuerySet.as_manager()
 
     @property
     def is_new(self):

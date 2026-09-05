@@ -50,16 +50,23 @@
                     <details class="dropdown dropdown-end">
                         <summary class="btn btn-outline rounded-full px-5 min-h-10 h-10 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider border-base-content/30 hover:bg-base-content hover:text-base-100 transition-all cursor-pointer list-none">
                             <img class="h-6 w-6 rounded-full object-cover" src="{{ user.avatar }}" alt="Avatar"/>
-                            <span>{{ user.name }}</span>
+                            <div class="flex flex-col items-start">
+                                <span>{{ user.name }}</span>
+                                {% if user.is_staff %}
+                                <span class="badge badge-xs text-[10px] badge-secondary text-secondary-content font-bold">Адмін</span>
+                                {% endif %}
+                            </div>
+                            
                             <i class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300"></i>
                         </summary>
                         
                         <ul class="dropdown-content menu menu-sm bg-base-100 text-base-content shadow-lg rounded-2xl w-52 p-2 z-50 border border-base-300 mt-2">
                             {% if user.is_staff %}
-                            <li><a href="{% url 'admin:index' %}" class="bg-secondary/80 hover:bg-secondary"><i class="fa-solid fa-database"></i> Адміністрування </a></li>
+                            <li><a href="{% url 'admin:index' %}" class="bg-secondary/80 text-secondary-content hover:bg-secondary"><i class="fa-solid fa-database"></i> Адміністрування </a></li>
                             {% endif %}
                             <li><a href="{% url 'profile' %}"><i class="fa-regular fa-user"></i> Мій профіль </a></li>
                             <li><a href="{% url 'profile-edit' %}"><i class="fa-solid fa-pen-to-square"></i> Редагувати профіль </a></li>
+                            <li><a href="{% url 'bookings_list' %}"><i class="fa-solid fa-book"></i> Мої бронювання </a></li>
                             <li><a href="{% url 'profile-settings' %}"><i class="fa-solid fa-gear"></i> Налаштування </a></li>
                             <div class="divider my-1"></div>
                             <li><a href="{% url 'account_logout' %}" class="text-error"><i class="fa-solid fa-right-from-bracket"></i> Вийти</a></li>

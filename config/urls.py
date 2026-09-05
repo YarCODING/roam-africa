@@ -26,6 +26,7 @@ urlpatterns = [
     path("", include("core.urls")),
     path('profile/', include('users.urls')),
     path("", include('tours.urls')),
+    path('bookings/', include('bookings.urls')),
     path('@<username>/', profile_view, name="profile"),
 ]
 

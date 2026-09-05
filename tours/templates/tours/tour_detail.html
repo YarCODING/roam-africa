@@ -44,6 +44,10 @@
 	</div>
   </section>
 
+  {% if not tour.is_active %}
+	<span class="text-red-500 font-bold">[Чернетка — доступна лише адміністраторам]</span>
+  {% endif %}
+
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
 
 	<div class="lg:col-span-2 space-y-8">
@@ -352,42 +356,30 @@
 		  </div>
 		</div>
 
-		<form method="post" action="#" class="space-y-4">
-		  {% csrf_token %}
-
-		  <div class="form-control w-full">
+		<form method="get" action="{% url 'checkout' tour.id %}" class="space-y-4">
+		<div class="form-control w-full">
 			<label class="label">
-			  <span class="label-text font-bold">Оберіть дату заїзду</span>
+			<span class="label-text font-bold">Оберіть дату заїзду</span>
 			</label>
 			<select name="tour_date" class="select select-bordered w-full rounded-xl focus:select-primary" required>
-			  <option value="" disabled selected>Виберіть зі списку...</option>
-			  {% for date in tour.dates.all %}
+			<option value="" disabled selected>Виберіть зі списку...</option>
+			{% for date in tour.dates.all %}
 				{% if date.status != 'sold_out' and date.status != 'canceled' %}
-				  <option value="{{ date.id }}">
+				<option value="{{ date.id }}">
 					{{ date.start_date|date:"d.m" }} - {{ date.end_date|date:"d.m.Y" }} (€{{ date.price }})
-				  </option>
+				</option>
 				{% endif %}
-			  {% endfor %}
+			{% endfor %}
 			</select>
-		  </div>
+		</div>
 
-		  <!-- <div class="form-control w-full">
-			<label class="label">
-			  <span class="label-text font-bold">Ваше ім'я</span>
-			</label>
-			<input type="text" name="name" placeholder="Введіть ім'я" class="input input-bordered w-full rounded-xl focus:input-primary" required />
-		  </div>
-
-		  <div class="form-control w-full">
-			<label class="label">
-			  <span class="label-text font-bold">Телефон / Telegram</span>
-			</label>
-			<input type="tel" name="phone" placeholder="+380 99 123 45 67" class="input input-bordered w-full rounded-xl focus:input-primary" required />
-		  </div> -->
-
-		  <button type="submit" class="btn btn-primary btn-block rounded-xl text-base shadow-lg shadow-primary/20">
-			Забронювати тур
-		  </button>
+		{% if tour.is_active %}
+			<button type="submit" class="btn btn-primary btn-block rounded-xl text-base shadow-lg shadow-primary/20">
+			Перейти до бронювання
+			</button>
+		{% else %}
+			<span class="text-red-500 font-bold">[Чернетка]</span>
+		{% endif %}
 		</form>
 
 		<div class="pt-2 border-t border-base-200 text-xs text-base-content/60 space-y-2">
