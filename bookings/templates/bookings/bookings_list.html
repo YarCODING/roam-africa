@@ -102,12 +102,14 @@
                 Деталі
               </a>
 
-              {% if booking.status == 'new' or booking.status == 'confirmed' %}
-                <a href="#" class="btn btn-primary btn-sm rounded-xl font-bold px-5 shadow-md shadow-primary/20">
+              {% if booking.status == 'confirmed' %}
+                <a href="{% url 'pay_booking' booking.id %}" class="btn btn-primary btn-sm rounded-xl font-bold px-5 shadow-md shadow-primary/20">
                   <i class="fa-regular fa-credit-card"></i>
                   Оплатити
                 </a>
+              {% endif %}
 
+              {% if booking.status == 'new' or booking.status == 'confirmed' %}
                 <button type="button" onclick="document.getElementById('cancel_modal_{{ booking.id }}').showModal()" class="btn btn-ghost btn-sm text-error hover:bg-error/10 rounded-xl font-semibold">
                   Скасувати
                 </button>

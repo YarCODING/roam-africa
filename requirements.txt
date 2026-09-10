@@ -7,3 +7,4 @@ django-htmx
 pillow
 requests
 django-countries
+stripe

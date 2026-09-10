@@ -1,0 +1,20 @@
+{% extends 'layouts/blank.html' %}
+
+{% block content %}
+<div class="min-h-[70vh] flex items-center justify-center px-4 py-12">
+    <div class="card w-full max-w-lg bg-base-100 shadow-xl border border-base-200">
+        <div class="card-body text-center items-center">
+            <div class="w-16 h-16 rounded-full bg-error/10 flex items-center justify-center text-error mb-2">
+                 <i class="fa-solid fa-xmark text-3xl"></i>
+            </div>
+            <h2 class="card-title text-2xl font-bold text-base-content">Оплату скасовано</h2>
+            <p class="text-base-content/70 mt-1">Ви перервали процес оплати бронювання <span class="font-semibold">#{{ booking.id }}</span>. Кошти з рахунку не списано.</p>
+            
+            <div class="card-actions justify-center w-full mt-6 gap-2">
+                <a href="{% url 'pay_booking' booking.id %}" class="btn btn-primary flex-1">Спробувати знову</a>
+                <a href="{% url 'bookings_list' %}" class="btn btn-outline flex-1">Мої бронювання</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

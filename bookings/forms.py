@@ -1,6 +1,8 @@
 from django import forms
 from .models import Booking
 from tours.models import TourDate
+from datetime import timedelta
+from django.utils import timezone
 
 class BookingForm(forms.ModelForm):
     class Meta:
@@ -25,6 +27,9 @@ class BookingForm(forms.ModelForm):
     def __init__(self, *args, tour=None, **kwargs):
         super().__init__(*args, **kwargs)
         if tour:
+            min_date = timezone.now().date() + timedelta(days=10)
+
             self.fields['tour_date'].queryset = TourDate.objects.filter(
-                tour=tour
+                tour=tour,
+                start_date__gte=min_date
             ).exclude(status__in=['sold_out', 'canceled'])

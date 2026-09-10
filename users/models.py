@@ -3,9 +3,10 @@ from django.contrib.auth.models import AbstractUser
 from django.templatetags.static import static
 
 class CustomUser(AbstractUser):
-    image = models.ImageField(upload_to='avatars/', null=True, blank=True)
-    displayname = models.CharField(max_length=20, null=True, blank=True)
-    info = models.TextField(null=True, blank=True)
+    image = models.ImageField("Аватар", upload_to='avatars/', null=True, blank=True)
+    displayname = models.CharField("Ім'я для відображення", max_length=20, null=True, blank=True)
+    info = models.TextField("Інфо", null=True, blank=True)
+    stripe_customer_id = models.CharField("Stripe Customer ID", max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.username

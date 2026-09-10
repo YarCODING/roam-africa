@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from users.views import profile_view
+from bookings.views import stripe_webhook
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,6 +28,7 @@ urlpatterns = [
     path('profile/', include('users.urls')),
     path("", include('tours.urls')),
     path('bookings/', include('bookings.urls')),
+    path('webhooks/stripe/', stripe_webhook, name='stripe_webhook'),
     path('@<username>/', profile_view, name="profile"),
 ]
 

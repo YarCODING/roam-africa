@@ -7,5 +7,5 @@ class CustomUserAdmin(UserAdmin):
     fieldsets = () + UserAdmin.fieldsets
 
     fieldsets = (
-        (None, {'fields': ('displayname', 'image',  'info')}),
+        (None, {'fields': ('displayname', 'image',  'info', 'stripe_customer_id')}),
     ) + UserAdmin.fieldsets
