@@ -40,6 +40,26 @@
             </tr>
 
             <tr>
+                <td class="font-bold text-base">Telegram бот</td>
+                <td>
+                    {% if is_telegram_connected %}
+                        <span class="badge badge-success gap-1">Підключено</span>
+                    {% else %}
+                        <span class="text-sm opacity-70">Отримуйте сповіщення та бронюйте в Telegram</span>
+                    {% endif %}
+                </td>
+                <td class="text-right">
+                    {% if is_telegram_connected %}
+                        <span class="text-xs text-emerald-600 font-medium">Акаунт прив'язано</span>
+                    {% else %}
+                        <a href="{{ telegram_url }}" target="_blank" class="btn btn-primary btn-xs">
+                            Підключити Telegram
+                        </a>
+                    {% endif %}
+                </td>
+            </tr>
+
+            <tr>
                 <td class="font-bold text-base text-error">Видалення акаунта</td>
                 <td class="text-sm opacity-70">
                     Після видалення акаунт буде втрачено назавжди.

@@ -7,6 +7,7 @@ class CustomUser(AbstractUser):
     displayname = models.CharField("Ім'я для відображення", max_length=20, null=True, blank=True)
     info = models.TextField("Інфо", null=True, blank=True)
     stripe_customer_id = models.CharField("Stripe Customer ID", max_length=255, blank=True, null=True)
+    telegram_chat_id = models.BigIntegerField("Telegram Chat ID", null=True, blank=True, unique=True)
 
     def __str__(self):
         return self.username

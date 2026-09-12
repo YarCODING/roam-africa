@@ -8,3 +8,7 @@ pillow
 requests
 django-countries
 stripe
+aiogram
+asyncio
+dotenv
+logging

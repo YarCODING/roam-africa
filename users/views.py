@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import int_to_base36
 from django.urls import reverse
 from allauth.account.models import EmailAddress
 from django.contrib.auth.decorators import login_required
@@ -39,7 +41,25 @@ def profile_edit_view(request):
 
 @login_required
 def profile_settings_view(request):
-    return render(request, 'users/profile_settings.html')
+    user = request.user
+
+    uidb36 = int_to_base36(user.id)
+    token = default_token_generator.make_token(user)
+    
+    start_parameter = f"{uidb36}-{token}"
+    
+    bot_username = "roam_africa_bot"
+    telegram_url = f"https://t.me/{bot_username}?start={start_parameter}"
+
+    is_telegram_connected = False
+    if user.telegram_chat_id:
+        is_telegram_connected = True
+
+    context = {
+        'telegram_url': telegram_url,
+        'is_telegram_connected': is_telegram_connected,
+    }
+    return render(request, 'users/profile_settings.html', context)
 
 
 @login_required

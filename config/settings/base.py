@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'users',
     'tours',
     'bookings',
+    'bot',
 
     'allauth',
     'allauth.account',
