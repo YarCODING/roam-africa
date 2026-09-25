@@ -1,3 +1,5 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from datetime import timedelta
@@ -183,3 +185,38 @@ class TourInclusion(models.Model):
     def __str__(self):
         prefix = "✓" if self.is_included else "✗"
         return f"{prefix} {self.text}"
+
+
+
+class TourReview(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reviews", verbose_name="Автор")
+    tour = models.ForeignKey(Tour, on_delete=models.CASCADE, related_name="reviews", verbose_name="Тур")
+    
+    rating_total = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name="Загальна оцінка"
+    )
+    
+    rating_guide = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name="Гід та супровід"
+    )
+    rating_program = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name="Програма та екскурсії"
+    )
+    rating_logistic = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name="Проживання та транспорт"
+    )
+    
+    text_review = models.TextField(verbose_name="Текст відгуку", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Відгук"
+        verbose_name_plural = "Відгуки"
+        unique_together = ('user', 'tour')
+
+    def __str__(self):
+            return f"Відгук від {self.user.name} до туру {self.tour.title}"

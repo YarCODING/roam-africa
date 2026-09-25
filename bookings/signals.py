@@ -30,7 +30,6 @@ def notify_admin_on_new_booking(sender, instance, created, **kwargs):
         )
         
         try:
-            # Викликаємо локальну асинхронну функцію
             asyncio.run(_send_telegram_notification(text))
         except Exception as e:
             print(f"Помилка відправки сповіщення в Telegram: {e}")

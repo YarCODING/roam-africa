@@ -2,6 +2,8 @@ from django.db import models
 from django.conf import settings
 from tours.models import TourDate
 from django.core.validators import MinValueValidator
+import requests
+from bot.config import BOT_TOKEN
 
 class Booking(models.Model):
     class Status(models.TextChoices):
@@ -62,4 +64,52 @@ class Booking(models.Model):
     def save(self, *args, **kwargs):
         if self.tour_date and self.tour_date.price:
             self.total_price = self.tour_date.price * self.persons_count
+
+        status_changed_to = None
+
+        if self.pk:
+            old_status = Booking.objects.filter(pk=self.pk).values_list('status', flat=True).first()
+            if old_status == self.Status.NEW and self.status == self.Status.CONFIRMED:
+                status_changed_to = 'confirmed'
+
+            elif old_status == self.Status.PAID and self.status == self.Status.COMPLETED:
+                status_changed_to = 'completed'
+
         super().save(*args, **kwargs)
+
+        if status_changed_to and self.customer and self.customer.telegram_chat_id:
+            self.send_telegram_notification(status_changed_to)
+
+    def send_telegram_notification(self, new_status):
+        token = BOT_TOKEN
+        if not token:
+            return
+
+        tour_title = self.tour_date.tour.title if self.tour_date and self.tour_date.tour else "Тур"
+
+        if new_status == 'confirmed':
+            text = (
+                f"✅ <b>Ваше бронювання #{self.id} підтверджено!</b>\n\n"
+                f"🌴 <b>Тур:</b> {tour_title}\n"
+                f"👥 <b>Кількість осіб:</b> {self.persons_count}\n"
+                f"💰 <b>Загальна сума:</b> €{self.total_price}\n\n"
+                f"Тепер ви можете перейти до оплати на сайті."
+            )
+        elif new_status == 'completed':
+            text = (
+                f"🎉 <b>Ви завершили тур {tour_title}!</b>\n\n"
+                f"📅 <b>Дата закінчення:</b> {self.tour_date.end_date}\n"
+                f"📘 <b>Бронювання:</b> #{self.id}\n\n"
+                f"Тепер ви можете залишити відгук!"
+            )
+
+        url = f"https://api.telegram.org/bot{token}/sendMessage"
+        payload = {
+            "chat_id": self.customer.telegram_chat_id,
+            "text": text,
+            "parse_mode": "HTML"
+        }
+        try:
+            requests.post(url, json=payload, timeout=5)
+        except Exception as e:
+            print(f"❌ Помилка надсилання сповіщення в Telegram: {e}")

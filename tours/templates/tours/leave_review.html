@@ -1,0 +1,199 @@
+{% extends "layouts/blank.html" %}
+
+{% block content %}
+<div class="min-h-screen py-8 px-4 flex justify-center items-center">
+    <div class="w-full max-w-2xl p-6">
+        
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-base-content">Як минув ваш тур?</h1>
+            <p class="text-sm text-base-content/60 mt-1">{{ tour.title }}</p>
+        </div>
+
+        {% if form.errors %}
+            <div class="alert alert-error shadow-sm mb-6 text-sm py-2">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>Будь ласка, заповніть усі шкали оцінок.</span>
+            </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'leave_review' tour.slug %}" class="space-y-5">
+            {% csrf_token %}
+
+            <div class="form-control p-4">
+                <label class="label font-semibold text-base-content pt-0 justify-center">
+                    <span>Загальна оцінка туру</span>
+                </label>
+                <div class="rating rating-lg justify-center gap-2 w-full">
+                    <input type="radio" name="rating_total" value="1" class="mask mask-star-2 bg-orange-400" required />
+                    <input type="radio" name="rating_total" value="2" class="mask mask-star-2 bg-orange-400" />
+                    <input type="radio" name="rating_total" value="3" class="mask mask-star-2 bg-orange-400" />
+                    <input type="radio" name="rating_total" value="4" class="mask mask-star-2 bg-orange-400" />
+                    <input type="radio" name="rating_total" value="5" class="mask mask-star-2 bg-orange-400" />
+                </div>
+            </div>
+
+            <div id="criteria-section" class="max-h-0 opacity-0 overflow-hidden transition-all duration-500 ease-in-out space-y-5">
+                <div class="divider text-xs text-base-content/40 uppercase tracking-wider">Оцініть деталі</div>
+                
+                <div class="form-control p-4">
+                    <label class="label font-medium text-sm text-base-content pt-0 mb-3">
+                        <span>Гід та супровід</span>
+                    </label>
+                    <div class="flex items-center justify-between px-1">
+                        <label class="cursor-pointer group flex flex-col items-center">
+                            <input type="radio" name="rating_guide" value="1" class="peer hidden" required />
+                            <i class="fa-solid fa-face-angry text-3xl text-base-content/30 transition-all duration-200 peer-checked:text-red-500 peer-checked:scale-120 group-hover:scale-110"></i>
+                            <span class="text-xs mt-1 text-base-content/40 peer-checked:text-red-500 font-medium">Жахливо</span>
+                        </label>
+                        <label class="cursor-pointer group flex flex-col items-center">
+                            <input type="radio" name="rating_guide" value="2" class="peer hidden" />
+                            <i class="fa-solid fa-face-frown text-3xl text-base-content/30 transition-all duration-200 peer-checked:text-orange-400 peer-checked:scale-120 group-hover:scale-110"></i>
+                            <span class="text-xs mt-1 text-base-content/40 peer-checked:text-orange-400 font-medium">Погано</span>
+                        </label>
+                        <label class="cursor-pointer group flex flex-col items-center">
+                            <input type="radio" name="rating_guide" value="3" class="peer hidden" />
+                            <i class="fa-solid fa-face-meh text-3xl text-base-content/30 transition-all duration-200 peer-checked:text-yellow-500 peer-checked:scale-120 group-hover:scale-110"></i>
+                            <span class="text-xs mt-1 text-base-content/40 peer-checked:text-yellow-500 font-medium">Норм</span>
+                        </label>
+                        <label class="cursor-pointer group flex flex-col items-center">
+                            <input type="radio" name="rating_guide" value="4" class="peer hidden" />
+                            <i class="fa-solid fa-face-smile text-3xl text-base-content/30 transition-all duration-200 peer-checked:text-green-500 peer-checked:scale-120 group-hover:scale-110"></i>
+                            <span class="text-xs mt-1 text-base-content/40 peer-checked:text-green-500 font-medium">Добре</span>
+                        </label>
+                        <label class="cursor-pointer group flex flex-col items-center">
+                            <input type="radio" name="rating_guide" value="5" class="peer hidden" />
+                            <i class="fa-solid fa-face-laugh text-3xl text-base-content/30 transition-all duration-200 peer-checked:text-emerald-700 peer-checked:scale-120 group-hover:scale-110"></i>
+                            <span class="text-xs mt-1 text-base-content/40 peer-checked:text-emerald-700 font-medium">Супер</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-control p-4">
+                    <label class="label font-medium text-sm text-base-content pt-0 mb-3">
+                        <span>Програма та маршрут</span>
+                    </label>
+                    <div class="flex items-center justify-between px-1">
+                        <label class="cursor-pointer group flex flex-col items-center">
+                            <input type="radio" name="rating_program" value="1" class="peer hidden" required />
+                            <i class="fa-solid fa-face-angry text-3xl text-base-content/30 transition-all duration-200 peer-checked:text-red-500 peer-checked:scale-120 group-hover:scale-110"></i>
+                            <span class="text-xs mt-1 text-base-content/40 peer-checked:text-red-500 font-medium">Жахливо</span>
+                        </label>
+                        <label class="cursor-pointer group flex flex-col items-center">
+                            <input type="radio" name="rating_program" value="2" class="peer hidden" />
+                            <i class="fa-solid fa-face-frown text-3xl text-base-content/30 transition-all duration-200 peer-checked:text-orange-400 peer-checked:scale-120 group-hover:scale-110"></i>
+                            <span class="text-xs mt-1 text-base-content/40 peer-checked:text-orange-400 font-medium">Погано</span>
+                        </label>
+                        <label class="cursor-pointer group flex flex-col items-center">
+                            <input type="radio" name="rating_program" value="3" class="peer hidden" />
+                            <i class="fa-solid fa-face-meh text-3xl text-base-content/30 transition-all duration-200 peer-checked:text-yellow-500 peer-checked:scale-120 group-hover:scale-110"></i>
+                            <span class="text-xs mt-1 text-base-content/40 peer-checked:text-yellow-500 font-medium">Норм</span>
+                        </label>
+                        <label class="cursor-pointer group flex flex-col items-center">
+                            <input type="radio" name="rating_program" value="4" class="peer hidden" />
+                            <i class="fa-solid fa-face-smile text-3xl text-base-content/30 transition-all duration-200 peer-checked:text-green-500 peer-checked:scale-120 group-hover:scale-110"></i>
+                            <span class="text-xs mt-1 text-base-content/40 peer-checked:text-green-500 font-medium">Добре</span>
+                        </label>
+                        <label class="cursor-pointer group flex flex-col items-center">
+                            <input type="radio" name="rating_program" value="5" class="peer hidden" />
+                            <i class="fa-solid fa-face-laugh text-3xl text-base-content/30 transition-all duration-200 peer-checked:text-emerald-700 peer-checked:scale-120 group-hover:scale-110"></i>
+                            <span class="text-xs mt-1 text-base-content/40 peer-checked:text-emerald-700 font-medium">Супер</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-control p-4">
+                    <label class="label font-medium text-sm text-base-content pt-0 mb-3">
+                        <span>Автобус та логістика</span>
+                    </label>
+                    <div class="flex items-center justify-between px-1">
+                        <label class="cursor-pointer group flex flex-col items-center">
+                            <input type="radio" name="rating_logistic" value="1" class="peer hidden" required />
+                            <i class="fa-solid fa-face-angry text-3xl text-base-content/30 transition-all duration-200 peer-checked:text-red-500 peer-checked:scale-120 group-hover:scale-110"></i>
+                            <span class="text-xs mt-1 text-base-content/40 peer-checked:text-red-500 font-medium">Жахливо</span>
+                        </label>
+                        <label class="cursor-pointer group flex flex-col items-center">
+                            <input type="radio" name="rating_logistic" value="2" class="peer hidden" />
+                            <i class="fa-solid fa-face-frown text-3xl text-base-content/30 transition-all duration-200 peer-checked:text-orange-400 peer-checked:scale-120 group-hover:scale-110"></i>
+                            <span class="text-xs mt-1 text-base-content/40 peer-checked:text-orange-400 font-medium">Погано</span>
+                        </label>
+                        <label class="cursor-pointer group flex flex-col items-center">
+                            <input type="radio" name="rating_logistic" value="3" class="peer hidden" />
+                            <i class="fa-solid fa-face-meh text-3xl text-base-content/30 transition-all duration-200 peer-checked:text-yellow-500 peer-checked:scale-120 group-hover:scale-110"></i>
+                            <span class="text-xs mt-1 text-base-content/40 peer-checked:text-yellow-500 font-medium">Норм</span>
+                        </label>
+                        <label class="cursor-pointer group flex flex-col items-center">
+                            <input type="radio" name="rating_logistic" value="4" class="peer hidden" />
+                            <i class="fa-solid fa-face-smile text-3xl text-base-content/30 transition-all duration-200 peer-checked:text-green-500 peer-checked:scale-120 group-hover:scale-110"></i>
+                            <span class="text-xs mt-1 text-base-content/40 peer-checked:text-green-500 font-medium">Добре</span>
+                        </label>
+                        <label class="cursor-pointer group flex flex-col items-center">
+                            <input type="radio" name="rating_logistic" value="5" class="peer hidden" />
+                            <i class="fa-solid fa-face-laugh text-3xl text-base-content/30 transition-all duration-200 peer-checked:text-emerald-700 peer-checked:scale-120 group-hover:scale-110"></i>
+                            <span class="text-xs mt-1 text-base-content/40 peer-checked:text-emerald-700 font-medium">Супер</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div id="comment-section" class="max-h-0 opacity-0 overflow-hidden transition-all duration-500 ease-in-out space-y-4">
+                <div class="form-control flex flex-col w-full">
+                    <label class="label font-medium mb-3 text-sm text-base-content">
+                        <span>Що сподобалося чи не сподобалося?</span>
+                    </label>
+                    <textarea name="text_review" class="textarea textarea-bordered h-28 w-full rounded-2xl resize-x focus:textarea-primary text-base-content" placeholder="Напишіть кілька слів про вашу подорож..."></textarea>
+                </div>
+            </div>
+
+
+            <div class="flex flex-col gap-2 pt-2">
+                <button type="submit" class="btn btn-primary rounded-2xl w-full">Опублікувати</button>
+                <a href="{% url 'tour_detail' tour.id %}" class="btn btn-ghost rounded-2xl w-full text-base-content/60">Скасувати</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const totalRatingInputs = document.querySelectorAll('input[name="rating_total"]');
+    const criteriaSection = document.getElementById('criteria-section');
+    const commentSection = document.getElementById('comment-section');
+    
+    const criteriaInputs = criteriaSection.querySelectorAll('input[type="radio"]');
+
+    function checkCriteriaFilled() {
+        const groupNames = new Set(Array.from(criteriaInputs).map(i => i.name));
+        let allGroupsSelected = true;
+        
+        groupNames.forEach(name => {
+            if (!document.querySelector(`input[name="${name}"]:checked`)) {
+                allGroupsSelected = false;
+            }
+        });
+        
+        if (allGroupsSelected) {
+            commentSection.classList.remove('max-h-0', 'opacity-0');
+            commentSection.classList.add('max-h-[500px]', 'opacity-100');
+        }
+    }
+
+    totalRatingInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            if (this.checked) {
+                criteriaSection.classList.remove('max-h-0', 'opacity-0');
+                criteriaSection.classList.add('max-h-[1000px]', 'opacity-100');
+                
+                criteriaInputs.forEach(ci => {
+                    if (ci.value === "1") ci.required = true; 
+                });
+            }
+        });
+    });
+
+    criteriaInputs.forEach(input => {
+        input.addEventListener('change', checkCriteriaFilled);
+    });
+});
+</script>
+
+{% endblock %}

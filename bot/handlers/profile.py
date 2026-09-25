@@ -96,7 +96,7 @@ async def show_my_bookings(message: Message):
     await message.answer(text, parse_mode="HTML")
 
 
-@router.message(F.text == "🔍 Статус бронювання")
+@router.message(F.text == "🔍 Бронювання за номером")
 async def start_booking_search(message: Message, state: FSMContext):
     await state.set_state(BookingSearch.waiting_for_id)
     await message.answer("Введіть номер вашого бронювання (наприклад, 12):")

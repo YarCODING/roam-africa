@@ -5,7 +5,7 @@ def get_main_keyboard():
     """Головне меню."""
     kb = [
         [KeyboardButton(text="🌴 Каталог турів")],
-        [KeyboardButton(text="📘 Забронювати тур"), KeyboardButton(text="🧳 Мої бронювання"), KeyboardButton(text="🔍 Статус бронювання")],
+        [KeyboardButton(text="📘 Забронювати тур"), KeyboardButton(text="🧳 Мої бронювання"), KeyboardButton(text="🔍 Бронювання за номером")],
         [KeyboardButton(text="❓ Поширені запитання (FAQ)"), KeyboardButton(text="💬 Задати запитання")],
         [KeyboardButton(text="👤 Аккаунт")]
     ]

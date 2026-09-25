@@ -6,7 +6,8 @@ from .models import (
     TourImage,
     TourDate,
     ItineraryDay,
-    TourInclusion
+    TourInclusion,
+    TourReview
 )
 
 
@@ -124,3 +125,8 @@ class TourDateAdmin(admin.ModelAdmin):
     list_filter = ("status", "start_date", "tour__country")
     search_fields = ("tour__title",)
     date_hierarchy = "start_date"
+
+
+@admin.register(TourReview)
+class TourReviewAdmin(admin.ModelAdmin):
+    list_display = ("user", "tour", "rating_total", "rating_guide", "rating_program", "rating_logistic")

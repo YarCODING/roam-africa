@@ -68,7 +68,7 @@
     <div class="carousel carousel-center w-full p-4 space-x-6 rounded-box scroll-smooth">
       {% for review in reviews %}
         <div id="slide{{ forloop.counter }}" class="carousel-item w-80 md:w-96 relative">
-          <div class="card bg-base-100 shadow-xl w-full">
+          <div class="card bg-base-100 w-full">
             <figure class="h-56 overflow-hidden">
               <img 
                 src="{% static 'images/reviews/' %}{{ review.image }}" 

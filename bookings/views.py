@@ -14,8 +14,8 @@ from .models import Booking
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 @login_required
-def checkout_view(request, tour_id):
-    tour = get_object_or_404(Tour, id=tour_id, is_active=True)
+def checkout_view(request, slug):
+    tour = get_object_or_404(Tour, slug=slug, is_active=True)
     
     if request.method == 'POST':
         form = BookingForm(request.POST, tour=tour)

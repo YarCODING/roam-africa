@@ -22,7 +22,7 @@
 	</p>
   </section>
 
-  <section class="grid grid-cols-1 md:grid-cols-4 gap-4 h-105 md:h-125">
+  <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
 	<div class="md:col-span-3 h-full relative rounded-3xl overflow-hidden shadow-lg group">
 	  {% if tour.cover_image %}
 		<img src="{{ tour.cover_image.url }}" alt="{{ tour.title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -342,6 +342,134 @@
 		  {% endfor %}
 		</div>
 	  </section>
+
+		<section class="py-8 p-6 my-6">
+			<div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+				<div>
+					<h2 class="text-2xl font-bold">Відгуки мандрівників</h2>
+					<p class="text-sm text-base-content/60">Реальні враження людей, які вже побували у цьому турі</p>
+				</div>
+				
+				<div>
+					{% if user.is_authenticated %}
+						{% if has_completed %}
+							{% if already_reviewed %}
+								<div class="alert alert-success text-sm py-2">
+									<span><i class="fa-solid fa-circle-check"></i> Ви вже оцінили цей тур!</span>
+								</div>
+							{% else %}
+								<a href="{% url 'leave_review' tour.slug %}" class="btn btn-primary gap-2 max-w-sm w-full">
+									<i class="fa-solid fa-pen-to-square"></i> Залишити відгук
+								</a>
+							{% endif %}
+						{% else %}
+							<div class="alert alert-neutral text-sm py-2">
+								<span><i class="fa-solid fa-circle-info"></i> Відгук можна залишити тільки після завершення поїздки.</span>
+							</div>
+						{% endif %}
+					{% else %}
+						<div class="flex items-center gap-3">
+							<span class="text-xs text-base-content/60 hidden sm:inline">Хочете поділитися враженнями?</span>
+							<a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-outline btn-sm btn-primary">Увійти на сайт</a>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+
+			{% if review_stats.total_count > 0 %}
+				<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6 bg-base-200/50 rounded-xl mb-8">
+					<div class="flex flex-col items-center justify-center border-b lg:border-b-0 lg:border-r border-base-300 pb-6 lg:pb-0">
+						<span class="text-5xl font-black text-primary">{{ review_stats.avg_total|floatformat:1 }}</span>
+						<div class="rating rating-sm my-2">
+							{% for i in "12345" %}
+								<input type="radio" class="mask mask-star-2 bg-warning" disabled {% if forloop.counter <= avg_total_rounded %}checked{% endif %} />
+							{% endfor %}
+						</div>
+						<span class="text-xs text-base-content/60">
+							На основі {{ review_stats.total_count }} відгуку{{ review_stats.total_count|pluralize:",-і,-ів" }}
+						</span>
+					</div>
+
+					<div class="lg:col-span-2 space-y-3 justify-center flex flex-col">
+						<div>
+							<div class="flex justify-between text-xs font-semibold mb-1">
+								<span>Гід та супровід</span>
+								<span>{{ review_stats.avg_guide|floatformat:1 }} / 5</span>
+							</div>
+							<progress class="progress progress-warning w-full" value="{{ review_stats.avg_guide }}" max="5"></progress>
+						</div>
+						<div>
+							<div class="flex justify-between text-xs font-semibold mb-1">
+								<span>Програма та екскурсії</span>
+								<span>{{ review_stats.avg_program|floatformat:1 }} / 5</span>
+							</div>
+							<progress class="progress progress-warning w-full" value="{{ review_stats.avg_program }}" max="5"></progress>
+						</div>
+						<div>
+							<div class="flex justify-between text-xs font-semibold mb-1">
+								<span>Проживання та транспорт</span>
+								<span>{{ review_stats.avg_logistic|floatformat:1 }} / 5</span>
+							</div>
+							<progress class="progress progress-warning w-full" value="{{ review_stats.avg_logistic }}" max="5"></progress>
+						</div>
+					</div>
+				</div>
+
+				<div class="space-y-4">
+					{% for review in reviews %}
+						<div class="card bg-base-100 border border-base-200 shadow-sm">
+							<div class="card-body p-5">
+								<div class="flex items-start justify-between">
+									<div class="flex items-center gap-3">
+										<div class="avatar">
+											<div class="w-10 h-10 rounded-full">
+												<img src="{{ review.user.avatar }}" alt="{{ review.user.name }}" class="object-cover" />
+											</div>
+										</div>
+										<div>
+											<h4 class="font-bold text-sm">
+												{{ review.user.name }}
+											</h4>
+											<span class="text-xs text-base-content/50">{{ review.created_at|date:"d E Y" }}</span>
+										</div>
+									</div>
+
+									<div class="badge badge-primary badge-md badge-soft">
+										<i class="fa-solid fa-star text-warning text-xs"></i>
+										<span class="text-xs font-bold">{{ review.rating_total }}</span>
+									</div>
+								</div>
+
+								{% if review.text_review %}
+									<p class="text-sm text-base-content/80 mt-3 whitespace-pre-line">{{ review.text_review }}</p>
+								{% endif %}
+
+								<div class="flex flex-wrap gap-4 mt-4 pt-3 border-t border-base-200 text-xs text-base-content/70">
+									<div class="flex items-center gap-1">
+										<span>Гід:</span>
+										<span class="font-bold text-base-content">{{ review.rating_guide }}/5</span>
+									</div>
+									<div class="flex items-center gap-1">
+										<span>Програма:</span>
+										<span class="font-bold text-base-content">{{ review.rating_program }}/5</span>
+									</div>
+									<div class="flex items-center gap-1">
+										<span>Логістика:</span>
+										<span class="font-bold text-base-content">{{ review.rating_logistic }}/5</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+			{% else %}
+				<div class="text-center py-12 bg-base-200/30 rounded-xl">
+					<i class="fa-regular fa-comments text-4xl text-base-content/30 mb-3"></i>
+					<h3 class="font-bold text-base">Поки немає жодного відгуку</h3>
+					<p class="text-xs text-base-content/60 mt-1">Будьте першим, хто поділиться враженнями про цей тур!</p>
+				</div>
+			{% endif %}
+		</section>
 	</div>
 
 	<div class="lg:col-span-1 lg:sticky lg:top-6 space-y-6">
@@ -356,7 +484,7 @@
 		  </div>
 		</div>
 
-		<form method="get" action="{% url 'checkout' tour.id %}" class="space-y-4">
+		<form method="get" action="{% url 'checkout' tour.slug %}" class="space-y-4">
 		<div class="form-control w-full">
 			<label class="label">
 			<span class="label-text font-bold">Оберіть дату заїзду</span>
