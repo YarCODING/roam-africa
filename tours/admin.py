@@ -1,5 +1,12 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin, StackedInline, TabularInline
+from users.admin import is_senior_staff
 from django.utils.html import format_html
+from unfold.contrib.import_export.forms import ExportForm, ImportForm
+from unfold.contrib.filters.admin import SliderNumericFilter, RangeDateFilter
+from import_export.admin import ImportExportMixin
+from simple_history.admin import SimpleHistoryAdmin
+
 from .models import (
     Country,
     Tour,
@@ -9,12 +16,18 @@ from .models import (
     TourInclusion,
     TourReview
 )
+from .resources import CountryResource, TourResource, TourDateResource
 
 
 @admin.register(Country)
-class CountryAdmin(admin.ModelAdmin):
+class CountryAdmin(ImportExportMixin, SimpleHistoryAdmin, ModelAdmin):
+    resource_classes = [CountryResource]
+    
+    import_form_class = ImportForm
+    export_form_class = ExportForm
+
     list_display = ("name", "slug", "tours_count")
-    search_fields = ("name", "description")
+    search_fields = ("name", "slug", "description")
     prepopulated_fields = {"slug": ("name",)}
 
     @admin.display(description="Кількість турів")
@@ -22,7 +35,7 @@ class CountryAdmin(admin.ModelAdmin):
         return obj.tours.count()
 
 
-class ItineraryDayInline(admin.StackedInline):
+class ItineraryDayInline(StackedInline):
     model = ItineraryDay
     extra = 1
     ordering = ("day_number",)
@@ -33,18 +46,18 @@ class ItineraryDayInline(admin.StackedInline):
     )
 
 
-class TourInclusionInline(admin.TabularInline):
+class TourInclusionInline(TabularInline):
     model = TourInclusion
     extra = 2
     fields = ("text", "is_included")
 
 
-class TourDateInline(admin.TabularInline):
+class TourDateInline(TabularInline):
     model = TourDate
     extra = 1
     fields = ("start_date", "end_date", "price", "available_seats", "status")
 
-class TourImageInline(admin.TabularInline):
+class TourImageInline(TabularInline):
     model = TourImage
     extra = 3
     fields = ("image", "image_preview", "caption", "order")
@@ -59,9 +72,19 @@ class TourImageInline(admin.TabularInline):
             )
         return "Фото немає"
 
+class TourPriceSliderFilter(SliderNumericFilter):
+    MAX_DECIMALS = 0
+    STEP = 100
+
 
 @admin.register(Tour)
-class TourAdmin(admin.ModelAdmin):
+class TourAdmin(ImportExportMixin, SimpleHistoryAdmin, ModelAdmin):
+    resource_classes = [TourResource]
+    import_form_class = ImportForm
+    export_form_class = ExportForm
+
+    list_filter_submit = True 
+
     list_display = (
         "cover_preview",
         "title",
@@ -70,12 +93,16 @@ class TourAdmin(admin.ModelAdmin):
         "price_from",
         "difficulty",
         "is_active",
+        "manager",
         "created_at"
     )
     list_filter = ("is_active", "difficulty", "country")
-    search_fields = ("title", "description", "full_content")
+    list_filter += (
+        ("price_from", TourPriceSliderFilter),
+    )
+    search_fields = ("title", "description", "full_content", "manager")
     prepopulated_fields = {"slug": ("title",)}
-    list_editable = ("is_active", "price_from")
+    list_editable = ("is_active", "price_from", "manager")
     
     readonly_fields = ("created_at", "updated_at", "cover_preview_large")
     
@@ -118,15 +145,59 @@ class TourAdmin(admin.ModelAdmin):
         }),
     )
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if is_senior_staff(request.user):
+            return qs
+        return qs.filter(manager=request.user)
+
+    def has_delete_permission(self, request, obj=None):
+        return is_senior_staff(request.user)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "manager" and not is_senior_staff(request.user):
+            kwargs["queryset"] = request.user.__class__.objects.filter(id=request.user.id)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def save_model(self, request, obj, form, change):
+        if not obj.manager:
+            obj.manager = request.user
+        super().save_model(request, obj, form, change)
+
 
 @admin.register(TourDate)
-class TourDateAdmin(admin.ModelAdmin):
+class TourDateAdmin(ImportExportMixin, SimpleHistoryAdmin, ModelAdmin):
+    resource_classes = [TourDateResource]
+    import_form_class = ImportForm
+    export_form_class = ExportForm
+
+    list_filter_submit = True
+
     list_display = ("tour", "start_date", "end_date", "price", "available_seats", "status")
     list_filter = ("status", "start_date", "tour__country")
+    list_filter += (
+            ("price", TourPriceSliderFilter),
+            ("start_date", RangeDateFilter),
+            ("end_date", RangeDateFilter),
+        )
     search_fields = ("tour__title",)
     date_hierarchy = "start_date"
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if is_senior_staff(request.user):
+            return qs
+        return qs.filter(tour__manager=request.user)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "tour" and not is_senior_staff(request.user):
+            kwargs["queryset"] = Tour.objects.filter(manager=request.user)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def has_delete_permission(self, request, obj=None):
+        return is_senior_staff(request.user)
+
 
 @admin.register(TourReview)
-class TourReviewAdmin(admin.ModelAdmin):
+class TourReviewAdmin(SimpleHistoryAdmin, ModelAdmin):
     list_display = ("user", "tour", "rating_total", "rating_guide", "rating_program", "rating_logistic")

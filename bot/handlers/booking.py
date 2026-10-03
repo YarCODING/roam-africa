@@ -9,6 +9,9 @@ from users.models import CustomUser
 from tours.models import TourDate
 from bookings.models import Booking
 
+from ..keyboards import get_tour_dates_inline_keyboard
+from ..services import get_active_tour_dates
+
 router = Router()
 
 class BookingFlow(StatesGroup):
@@ -18,15 +21,6 @@ class BookingFlow(StatesGroup):
     entering_phone = State()
     entering_persons = State()
     entering_comment = State()
-
-
-@sync_to_async
-def get_active_tour_dates():
-    return list(
-        TourDate.objects.filter(tour__is_active=True)
-        .select_related('tour')
-        .order_by('start_date')[:10]
-    )
 
 
 @sync_to_async
@@ -74,8 +68,6 @@ def create_booking_in_db(chat_id: int, data: dict):
         return None, f"❌ Помилка бази даних: {e}"
 
 
-
-
 @router.message(F.text == "📘 Забронювати тур")
 async def start_booking(message: Message, state: FSMContext):
     chat_id = message.from_user.id
@@ -94,15 +86,27 @@ async def start_booking(message: Message, state: FSMContext):
         await message.answer("😔 Наразі немає активних турів для бронювання.")
         return
 
-    keyboard_buttons = []
-    for td in dates:
-        title = f"{td.tour.title} ({td.start_date})"
-        keyboard_buttons.append([InlineKeyboardButton(text=title, callback_data=f"book_td_{td.id}")])
-
-    keyboard = InlineKeyboardMarkup(inline_keyboard=keyboard_buttons)
-    
     await state.set_state(BookingFlow.selecting_date)
-    await message.answer("Оберіть тур та дату заїзду з каталогу нижче:", reply_markup=keyboard)
+    await message.answer(
+        "Оберіть тур та дату заїзду з каталогу нижче:", 
+        reply_markup=get_tour_dates_inline_keyboard(dates, page=1)
+    )
+
+
+@router.callback_query(BookingFlow.selecting_date, F.data.startswith("booking_page_"))
+async def process_booking_page(callback: CallbackQuery, state: FSMContext):
+    page = int(callback.data.split("_")[2])
+    dates = await get_active_tour_dates()
+
+    if not dates:
+        await callback.answer("😔 Наразі немає активних турів для бронювання.", show_alert=True)
+        return
+
+    await callback.message.edit_text(
+        "Оберіть тур та дату заїзду з каталогу нижче:",
+        reply_markup=get_tour_dates_inline_keyboard(dates, page=page)
+    )
+    await callback.answer()
 
 
 @router.callback_query(BookingFlow.selecting_date, F.data.startswith("book_td_"))
@@ -234,3 +238,78 @@ async def finalize_booking(message: Message, state: FSMContext, comment: str):
         f"Переглянути ваші замовлення можна у розділі <b>«🧳 Мої бронювання»</b>."
     )
     await message.answer(response, parse_mode="HTML", reply_markup=ReplyKeyboardRemove())
+
+
+
+@router.callback_query(F.data.startswith("confirm_booking:"))
+async def process_confirm_booking(callback: CallbackQuery):
+    booking_id = callback.data.split(":")[1]
+
+    @sync_to_async
+    def update_booking():
+        try:
+            booking = Booking.base_objects.select_related('tour_date__tour', 'customer').get(id=booking_id)
+            
+            if booking.status == Booking.Status.CONFIRMED:
+                return booking, False
+                
+            booking.status = Booking.Status.CONFIRMED
+            booking.save()
+            return booking, True
+        except Booking.DoesNotExist:
+            return None, False
+
+    booking, updated = await update_booking()
+
+    if not booking:
+        await callback.answer("❌ Бронювання не знайдено!", show_alert=True)
+        return
+
+    if not updated:
+        await callback.answer("⚠️ Це бронювання вже було підтверджено!")
+        return
+
+    await callback.answer("✅ Бронювання успішно підтверджено!")
+
+    new_text = (
+        f"{callback.message.html_text}\n\n"
+        f"✅ <b>ПІДТВЕРДЖЕНО (Очікує оплати)</b>"
+    )
+    await callback.message.edit_text(text=new_text, parse_mode="HTML", reply_markup=None)
+
+
+@router.callback_query(F.data.startswith("cancel_booking:"))
+async def process_cancel_booking(callback: CallbackQuery):
+    booking_id = callback.data.split(":")[1]
+
+    @sync_to_async
+    def cancel_booking():
+        try:
+            booking = Booking.base_objects.select_related('tour_date__tour', 'customer').get(id=booking_id)
+            
+            if booking.status == Booking.Status.CANCELED:
+                return booking, False
+                
+            booking.status = Booking.Status.CANCELED
+            booking.save()
+            return booking, True
+        except Booking.DoesNotExist:
+            return None, False
+
+    booking, updated = await cancel_booking()
+
+    if not booking:
+        await callback.answer("❌ Бронювання не знайдено!", show_alert=True)
+        return
+
+    if not updated:
+        await callback.answer("⚠️ Це бронювання вже було скасовано!")
+        return
+
+    await callback.answer("❌ Бронювання скасовано!")
+
+    new_text = (
+        f"{callback.message.html_text}\n\n"
+        f"❌ <b>СКАСОВАНО АДМІНІСТРАТОРОМ</b>"
+    )
+    await callback.message.edit_text(text=new_text, parse_mode="HTML", reply_markup=None)

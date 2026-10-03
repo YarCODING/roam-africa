@@ -1,8 +1,13 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
+from simple_history.models import HistoricalRecords
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from datetime import timedelta
+from django.contrib.auth import get_user_model
+from djmoney.models.fields import MoneyField
+
+User = get_user_model()
 
 class Country(models.Model):
     name = models.CharField("Назва країни", max_length=100)
@@ -11,6 +16,8 @@ class Country(models.Model):
     description = models.TextField("Опис країни", blank=True)
     cover_image = models.ImageField("Обкладинка", upload_to="countries/")
 
+    history = HistoricalRecords()
+
     class Meta:
         verbose_name = "Країна"
         verbose_name_plural = "Країни"
@@ -18,7 +25,6 @@ class Country(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.code})"
-
 
 
 
@@ -41,6 +47,16 @@ class Tour(models.Model):
         verbose_name="Країна"
     )
 
+    manager = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='tours',
+        verbose_name="Відповідальний менеджер",
+        limit_choices_to={'is_staff': True} 
+    )
+
     title = models.CharField("Назва туру", max_length=60)
     slug = models.SlugField("URL slug", unique=True)
     description = models.TextField("Короткий опис")
@@ -53,7 +69,12 @@ class Tour(models.Model):
     )
 
     duration_days = models.PositiveIntegerField("Тривалість (днів)")
-    price_from = models.DecimalField("Ціна від (€)", max_digits=10, decimal_places=2)
+    price_from = MoneyField(
+        "Ціна від", 
+        max_digits=10, 
+        decimal_places=2,
+        default_currency='EUR',
+    )
     difficulty = models.CharField(
         "Складність", 
         max_length=20, 
@@ -68,6 +89,8 @@ class Tour(models.Model):
     updated_at = models.DateTimeField("Дата оновлення", auto_now=True)
 
     objects = TourQuerySet.as_manager()
+
+    history = HistoricalRecords()
 
     @property
     def is_new(self):
@@ -92,6 +115,8 @@ class TourImage(models.Model):
     image = models.ImageField("Зображення", upload_to="tours/gallery/")
     caption = models.CharField("Підпис / Alt текст", max_length=255, blank=True)
     order = models.PositiveIntegerField("Порядок сортування", default=0)
+
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "Фотографії з туру"
@@ -119,7 +144,12 @@ class TourDate(models.Model):
 
     start_date = models.DateField("Дата початку")
     end_date = models.DateField("Дата закінчення")
-    price = models.DecimalField("Точна ціна (€)", max_digits=10, decimal_places=2)
+    price = MoneyField(
+        "Точна ціна", 
+        max_digits=10, 
+        decimal_places=2,
+        default_currency='EUR',
+    )
     available_seats = models.PositiveIntegerField("Вільних місць")
     status = models.CharField(
         "Статус групи", 
@@ -127,6 +157,8 @@ class TourDate(models.Model):
         choices=Status.choices, 
         default=Status.OPEN
     )
+
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "Дата заїзду"
@@ -151,6 +183,8 @@ class ItineraryDay(models.Model):
     description = models.TextField("Опис дня")
     accommodation = models.CharField("Проживання", max_length=255, blank=True)
     meals = models.CharField("Харчування", max_length=100, blank=True)
+
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "Розклад програми"
@@ -177,6 +211,8 @@ class TourInclusion(models.Model):
         default=True,
         help_text="Входить (галочка), не входить (порожній квадрат)"
     )
+
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "Включення/Виключення"
@@ -212,6 +248,8 @@ class TourReview(models.Model):
     
     text_review = models.TextField(verbose_name="Текст відгуку", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "Відгук"

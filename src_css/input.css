@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+@source "../templates/**/*.html";
+@source "../**/templates/**/*.html";
+@source "../.venv/lib/python*/site-packages/unfold/**/*.html";
+
 @plugin "daisyui/theme" {
   name: "kilima-light";
   default: true;

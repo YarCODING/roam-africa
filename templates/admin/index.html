@@ -1,0 +1,121 @@
+{% extends "unfold/layouts/base.html" %}
+
+{% block content %}
+  <div class="flex flex-col gap-6">
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {% for card in kpi %}
+        <div class="bg-card-bg border border-gray-200 dark:border-white/10 p-6 rounded-xl shadow-sm flex flex-col justify-between" >
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-font-subtle">
+              {{ card.title }}
+            </span>
+            <div class="text-3xl font-bold text-font-important mt-2">
+              {{ card.metric }}
+            </div>
+          </div>
+          {% if card.footer %}
+            <div class="text-xs text-font-subtle mt-4 pt-2 border-t border-gray-100 dark:border-white/10" >
+              {{ card.footer }}
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      
+      <div class="bg-card-bg border border-gray-200 dark:border-white/10 p-6 rounded-xl shadow-sm" >
+        <h3 class="text-base font-semibold mb-4 text-font-important">
+          Популярність турів
+        </h3>
+        <div class="relative w-full min-h-70">
+          {% include "unfold/components/chart/bar.html" with data=chart_data %}
+        </div>
+      </div>
+
+      <div class="bg-card-bg border border-gray-200 dark:border-white/10 p-6 rounded-xl shadow-sm"  >
+        <h3 class="text-base font-semibold mb-4 text-font-important">
+          Топ турів за бронюваннями
+        </h3>
+        <div class="divide-y divide-gray-100 dark:divide-white/10">
+          {% for tour in popular_tours %}
+            <div class="py-3 flex justify-between items-center first:pt-0 last:pb-0">
+              <span class="font-medium text-sm text-font-default">
+                {{ tour.title }}
+              </span>
+              <span class="bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-semibold px-2.5 py-1 rounded-full">
+                {{ tour.booking_count }} бронювань
+              </span>
+            </div>
+          {% empty %}
+            <p class="text-sm text-font-subtle py-4">Бронювань поки немає</p>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+  <div class="bg-card-bg border border-gray-200 dark:border-white/10 p-6 rounded-xl shadow-sm" >
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="text-base font-semibold text-font-important flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary-600 dark:text-primary-400">calendar_month</span>
+        Найближчі виїзди
+      </h3>
+      <span class="text-xs text-font-subtle font-medium">Актуальный расклад</span>
+    </div>
+
+    <div class="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200 dark:before:bg-white/10">
+      {% for item in upcoming_dates %}
+        <div class="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          
+          <span class="absolute -left-4.75 top-1.5 w-3 h-3 rounded-full border-2 border-gray-900
+            {% if item.status == 'open' %}bg-emerald-500
+            {% elif item.status == 'few_left' %}bg-amber-500
+            {% elif item.status == 'sold_out' %}bg-rose-500
+            {% else %}bg-gray-500{% endif %}">
+          </span>
+
+          <div class="flex flex-col">
+            <span class="font-medium text-sm text-font-important hover:underline cursor-pointer">
+              {{ item.tour.title }}
+            </span>
+            <div class="flex items-center gap-2 text-xs text-font-subtle mt-1">
+              <span class="font-mono bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded text-font-default">
+                {{ item.start_date|date:"d.m.Y" }} — {{ item.end_date|date:"d.m.Y" }}
+              </span>
+              <span>•</span>
+              <span class="font-semibold text-font-default">€{{ item.price }}</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 self-start sm:self-center">
+            <span class="text-xs font-semibold px-3 py-1 rounded-full border
+              {% if item.status == 'open' %}
+                bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20
+              {% elif item.status == 'few_left' %}
+                bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20
+              {% elif item.status == 'sold_out' %}
+                bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20
+              {% else %}
+                bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20
+              {% endif %}">
+              {{ item.get_status_display }}
+            </span>
+
+            {% if item.status != 'sold_out' and item.status != 'canceled' %}
+              <span class="text-xs text-font-subtle font-medium">
+                ({{ item.available_seats }} місць)
+              </span>
+            {% endif %}
+          </div>
+
+        </div>
+      {% empty %}
+        <p class="text-sm text-font-subtle">Запланованих виїздів немає</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  </div>
+{% endblock %}

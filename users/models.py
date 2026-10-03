@@ -1,4 +1,5 @@
 from django.db import models
+from simple_history.models import HistoricalRecords
 from django.contrib.auth.models import AbstractUser
 from django.templatetags.static import static
 
@@ -9,21 +10,30 @@ class CustomUser(AbstractUser):
     stripe_customer_id = models.CharField("Stripe Customer ID", max_length=255, blank=True, null=True)
     telegram_chat_id = models.BigIntegerField("Telegram Chat ID", null=True, blank=True, unique=True)
 
+    history = HistoricalRecords()
+
     def __str__(self):
         return self.username
     
     @property
     def name(self):
-        if self.displayname:
-            name = self.displayname
-        else:
-            name = self.username 
-        return name
+        return self.displayname if self.displayname else self.username
     
     @property
     def avatar(self):
-        try:
-            avatar = self.image.url
-        except:
-            avatar = static('images/avatar.png')
-        return avatar
+        if self.image and hasattr(self.image, 'url'):
+            try:
+                return self.image.url
+            except Exception:
+                pass
+        return static('images/avatar.png')
+
+    # unfold
+    @property
+    def avatar_url(self) -> str | None:
+        if self.image and hasattr(self.image, 'url'):
+            try:
+                return self.image.url
+            except Exception:
+                pass
+        return static('images/avatar.png')

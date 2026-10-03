@@ -39,7 +39,7 @@
                   Бронювання #{{ booking.id }} • {{ booking.created_at|date:"d.m.Y H:i" }}
                 </span>
                 <h2 class="card-title text-xl md:text-2xl font-bold">
-                  {{ booking.tour_date.tour.title }}
+                  <a href="{% url 'booking_detail' booking.id %}">{{ booking.tour_date.tour.title }}</a>
                 </h2>
               </div>
 
@@ -105,6 +105,20 @@
               <a href="{% url 'booking_detail' booking.id %}" class="btn btn-ghost btn-sm rounded-xl font-semibold">
                 Деталі
               </a>
+
+              {% if booking.status == 'completed' %}
+                {% if booking.has_review %}
+                  <a href="{% url 'tour_detail' booking.tour_date.tour.slug %}#reviews" class="btn btn-success btn-soft btn-sm rounded-xl font-semibold gap-1">
+                    <i class="fa-solid fa-star text-warning"></i>
+                    Ваш відгук
+                  </a>
+                {% else %}
+                  <a href="{% url 'leave_review' booking.tour_date.tour.slug %}" class="btn btn-warning btn-sm rounded-xl font-bold px-4 shadow-md shadow-warning/20 gap-1.5">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    Залишити відгук
+                  </a>
+                {% endif %}
+              {% endif %}
 
               {% if booking.status == 'confirmed' %}
                 <a href="{% url 'pay_booking' booking.id %}" class="btn btn-primary btn-sm rounded-xl font-bold px-5 shadow-md shadow-primary/20">

@@ -1,15 +1,17 @@
 from asgiref.sync import sync_to_async
+from django.utils import timezone
+from datetime import timedelta
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import base36_to_int
 from django.contrib.auth import get_user_model
-from tours.models import Tour
+from tours.models import Tour, TourDate
 from bookings.models import Booking
 
 User = get_user_model()
 
 @sync_to_async
 def get_active_tours():
-    return list(Tour.objects.published().select_related('country')[:10])
+    return list(Tour.objects.published().select_related('country'))
 
 @sync_to_async
 def get_booking_by_id(booking_id: int):
@@ -90,3 +92,18 @@ def unlink_telegram_account(chat_id: int) -> bool:
     except Exception as e:
         print(f"❌ Помилка відв'язки акаунта: {e}")
         return False
+
+
+@sync_to_async
+def get_active_tour_dates():
+    today = timezone.now().date()
+    min_start_date = today + timedelta(days=3)
+
+    return list(
+        TourDate.objects.filter(
+            start_date__gte=min_start_date,
+            available_seats__gt=0
+        )
+        .select_related('tour')
+        .order_by('start_date')
+    )

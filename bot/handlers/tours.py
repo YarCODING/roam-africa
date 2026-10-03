@@ -15,8 +15,29 @@ async def show_catalog(message: Message):
     
     await message.answer(
         "Ось актуальні тури:",
-        reply_markup=get_tours_inline_keyboard(tours)
+        reply_markup=get_tours_inline_keyboard(tours, page=1)
     )
+
+
+@router.callback_query(F.data.startswith("catalog_page_"))
+async def process_catalog_page(callback: CallbackQuery):
+    page = int(callback.data.split("_")[2])
+    tours = await get_active_tours()
+
+    if not tours:
+        await callback.answer("Наразі немає активних турів.", show_alert=True)
+        return
+
+    await callback.message.edit_text(
+        "Ось актуальні тури:",
+        reply_markup=get_tours_inline_keyboard(tours, page=page)
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data == "noop")
+async def process_noop(callback: CallbackQuery):
+    await callback.answer()
 
 
 @router.callback_query(F.data.startswith("tour_") & ~F.data.startswith(("tour_itin_", "tour_gal_", "tour_inc_", "tour_dates_")))
@@ -88,8 +109,6 @@ async def show_tour_gallery(callback: CallbackQuery):
     for idx, img_obj in enumerate(images[:10]):
         if img_obj.image:
             caption = f"📸 {tour.title}" if idx == 0 else ""
-            if img_obj.caption and idx == 0:
-                caption += f"\n{img_obj.caption}"
             media_group.append(InputMediaPhoto(media=FSInputFile(img_obj.image.path), caption=caption))
 
     if media_group:

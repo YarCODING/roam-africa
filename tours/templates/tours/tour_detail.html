@@ -3,7 +3,7 @@
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 py-8 space-y-10">
 
-  <section class="space-y-4">
+  <section id="title" class="space-y-4">
 	<div class="flex flex-wrap items-center gap-2">
 	  <a class="link link-primary link-hover" href="{% url 'country_detail' tour.country.slug %}">
 		<i class="fa-solid fa-location-dot"></i>
@@ -22,7 +22,7 @@
 	</p>
   </section>
 
-  <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+  <section id="photos" class="grid grid-cols-1 md:grid-cols-4 gap-4">
 	<div class="md:col-span-3 h-full relative rounded-3xl overflow-hidden shadow-lg group">
 	  {% if tour.cover_image %}
 		<img src="{{ tour.cover_image.url }}" alt="{{ tour.title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -52,7 +52,7 @@
 
 	<div class="lg:col-span-2 space-y-8">
 
-	  <section class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+	  <section id="info" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
 		<div class="bg-base-100 p-4 rounded-2xl flex items-center gap-4">
 		  <div class="p-3 bg-primary/10 text-primary rounded-xl">
 			<i class="fa-regular fa-clock"></i>
@@ -111,7 +111,7 @@
 		</div>
 	  </section>
 
-	  <section class="bg-base-100 p-6 md:p-8 rounded-3xl space-y-4">
+	  <section id="desc" class="bg-base-100 p-6 md:p-8 rounded-3xl space-y-4">
 		<h2 class="text-2xl font-bold text-base-content flex items-center gap-2">
 		  Про тур
 		</h2>
@@ -125,7 +125,7 @@
 	  </section>
 
 
-	<section class="bg-base-100 p-6 md:p-8 rounded-3xl space-y-4">
+	<section id="gallery" class="bg-base-100 p-6 md:p-8 rounded-3xl space-y-4">
 	<h2 class="text-2xl font-bold text-base-content flex items-center gap-2">
 		<i class="fa-solid fa-camera text-primary"></i> Галерея туру
 	</h2>
@@ -170,7 +170,7 @@
 	</section>
 
 
-	  <div class="bg-base-100 p-6 md:p-8 rounded-3xl space-y-6">
+	<section id="itinerarydays" class="bg-base-100 p-6 md:p-8 rounded-3xl space-y-6">
 		<h2 class="text-2xl font-bold text-base-content flex items-center gap-2">
 			Програма туру по днях
 		</h2>
@@ -215,11 +215,11 @@
 			</div>
 			{% endfor %}
 		</div>
-		</div>
+	</section>
 
 
 
-	  <section class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+	  <section id="inclusions" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
 			<div class="bg-base-100 p-6 md:p-8 rounded-3xl border border-success/30 shadow-sm space-y-4">
 				<h3 class="text-xl font-bold text-success flex items-center gap-2">
 				<div class="p-2 rounded-xl">
@@ -266,7 +266,7 @@
 		</section>
 
 
-	  <section class="mx-auto p-4">
+	  <section id="visa" class="mx-auto p-4">
 		<div>
 			<h3 class="card-title text-lg font-bold mb-2">
 				Перевірка візи в {{ tour.country.name }}
@@ -293,7 +293,7 @@
 		</section>
 
 
-	  <section class="bg-base-100 p-6 md:p-8 rounded-3xl space-y-6">
+	  <section id="shedule" class="bg-base-100 p-6 md:p-8 rounded-3xl space-y-6">
 		<h2 class="text-2xl font-bold text-base-content">Розклад заїздів</h2>
 
 		<div class="space-y-3">
@@ -343,7 +343,7 @@
 		</div>
 	  </section>
 
-		<section class="py-8 p-6 my-6">
+		<section id="reviews" class="py-8 p-6 my-6">
 			<div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
 				<div>
 					<h2 class="text-2xl font-bold">Відгуки мандрівників</h2>
@@ -427,8 +427,8 @@
 											</div>
 										</div>
 										<div>
-											<h4 class="font-bold text-sm">
-												{{ review.user.name }}
+											<h4 class="flex font-bold text-sm items-center">
+												{{ review.user.name }} {% if review.user == user %}<span class="text-[10px]! font-body text-base-content/70 ml-2">● Ваш відгук</span>{% endif %}
 											</h4>
 											<span class="text-xs text-base-content/50">{{ review.created_at|date:"d E Y" }}</span>
 										</div>

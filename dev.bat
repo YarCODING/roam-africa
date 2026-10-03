@@ -1,0 +1,1 @@
+wt -d . cmd /k ".venv\Scripts\activate && python manage.py runserver" ; split-pane -d . cmd /k "npm run watch:css" ; split-pane -H -d . cmd /k ".venv\Scripts\activate && python manage.py runbot" ; split-pane -H -d . cmd /k "stripe listen --forward-to localhost:8000/webhooks/stripe/"

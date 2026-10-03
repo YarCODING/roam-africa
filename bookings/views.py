@@ -3,17 +3,19 @@ from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from allauth.account.decorators import verified_email_required
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from tours.models import Tour, TourDate
+from tours.models import Tour, TourDate, TourReview
 from .forms import BookingForm
 from .models import Booking
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 @login_required
+@verified_email_required
 def checkout_view(request, slug):
     tour = get_object_or_404(Tour, slug=slug, is_active=True)
     
@@ -62,17 +64,35 @@ def checkout_view(request, slug):
     })
 
 @login_required
+@verified_email_required
 def booking_success(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id, customer=request.user)
     return render(request, 'bookings/success.html', {'booking': booking})
 
 
 @login_required
+@verified_email_required
 def bookings_list(request):
-    bookings = Booking.objects.filter(customer=request.user).order_by('-status', '-created_at')
-    return render(request, 'bookings/bookings_list.html', {'bookings':bookings})
+    bookings = Booking.objects.filter(customer=request.user)\
+        .select_related('tour_date__tour')\
+        .order_by('-status', '-created_at')
+
+    reviewed_tour_ids = set(
+        TourReview.objects.filter(user=request.user)
+        .values_list('tour_id', flat=True)
+    )
+
+    for booking in bookings:
+        tour = getattr(getattr(booking, 'tour_date', None), 'tour', None)
+        booking.has_review = tour.id in reviewed_tour_ids if tour else False
+
+    context = {
+        'bookings': bookings,
+    }
+    return render(request, 'bookings/bookings_list.html', context)
 
 @login_required
+@verified_email_required
 def cancel_booking(request, booking_id):
     if request.method == 'POST':
         booking = get_object_or_404(Booking, id=booking_id, customer=request.user)
@@ -82,6 +102,7 @@ def cancel_booking(request, booking_id):
     return redirect('bookings_list')
 
 @login_required
+@verified_email_required
 def booking_detail(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id, customer=request.user)
     return render(request, 'bookings/booking_detail.html', {'booking': booking})
@@ -89,6 +110,7 @@ def booking_detail(request, booking_id):
 
 
 @login_required
+@verified_email_required
 def create_stripe_checkout_session(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id, customer=request.user)
     
