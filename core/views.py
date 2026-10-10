@@ -1,10 +1,12 @@
 import json
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
-from tours.models import Country
+from tours.models import Country, Tour
 
 def home_view(request):
     countries = Country.objects.all()
+
+    featured_tours = Tour.objects.filter(is_active=True).select_related('country')[:3]
     
     countries_data = {
         country.code: {
@@ -51,8 +53,20 @@ def home_view(request):
 
     context = {
         "countries_json": json.dumps(countries_data),
-        "reviews": reviews
+        "reviews": reviews,
+        "featured_tours": featured_tours
     }
-
     
     return render(request, "core/home.html", context)
+
+def about_page(request):
+    return render(request, 'core/about.html')
+
+
+
+def set_currency(request):
+    currency = request.GET.get('currency', 'EUR')
+    if currency in ['EUR', 'USD', 'UAH']:
+        request.session['currency'] = currency
+    
+    return redirect(request.META.get('HTTP_REFERER', '/'))

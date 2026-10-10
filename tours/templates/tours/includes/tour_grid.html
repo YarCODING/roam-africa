@@ -1,0 +1,72 @@
+<div id="tour-grid-container" class="space-y-6">
+
+  <div class="htmx-indicator flex justify-center">
+    <span class="loading loading-spinner loading-lg text-primary"></span>
+  </div>
+
+  {% if page_obj %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for tour in page_obj %}
+        {% include "tours/tour_card.html" with tour=tour %}
+      {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+      <div class="flex justify-center pt-8">
+        <div class="join shadow-sm">
+          
+          {% if page_obj.has_previous %}
+            <button 
+              hx-get="{% url 'tour_list' %}?page={{ page_obj.previous_page_number }}"
+              hx-target="#tour-grid-container"
+              hx-include="#filter-form, #sort-select"
+              hx-push-url="true"
+              class="join-item btn btn-sm">«</button>
+          {% else %}
+            <button class="join-item btn btn-sm btn-disabled">«</button>
+          {% endif %}
+
+          {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+              <button class="join-item btn btn-sm btn-active btn-primary">{{ num }}</button>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+              <button 
+                hx-get="{% url 'tour_list' %}?page={{ num }}"
+                hx-target="#tour-grid-container"
+                hx-include="#filter-form, #sort-select"
+                hx-push-url="true"
+                class="join-item btn btn-sm">{{ num }}</button>
+            {% endif %}
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+            <button 
+              hx-get="{% url 'tour_list' %}?page={{ page_obj.next_page_number }}"
+              hx-target="#tour-grid-container"
+              hx-include="#filter-form, #sort-select"
+              hx-push-url="true"
+              class="join-item btn btn-sm">»</button>
+          {% else %}
+            <button class="join-item btn btn-sm btn-disabled">»</button>
+          {% endif %}
+
+        </div>
+      </div>
+    {% endif %}
+
+  {% else %}
+    <div class="bg-base-100 rounded-box p-12 text-center shadow-sm space-y-4">
+      <div class="text-base-content/20">
+        <i class="fa-solid fa-compass text-6xl"></i>
+      </div>
+      <h3 class="text-xl font-bold">Тури не знайдені</h3>
+      <p class="text-sm text-base-content/60 max-w-md mx-auto">
+        Спробуйте змінити параметри фільтрації або пошуковий запит.
+      </p>
+      <a href="{% url 'tour_list' %}" class="btn btn-outline btn-primary btn-sm">
+        Скинути фільтри
+      </a>
+    </div>
+  {% endif %}
+
+</div>

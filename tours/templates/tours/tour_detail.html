@@ -1,4 +1,5 @@
 {% extends "layouts/blank.html" %}
+{% load currency_tags %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 py-8 space-y-10">
@@ -324,7 +325,7 @@
 			  <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4">
 				<div class="text-right">
 				  <span class="text-xs text-base-content/60 block">Ціна</span>
-				  <span class="text-lg font-extrabold text-primary">€{{ date.price }}</span>
+				  <span class="text-lg font-extrabold text-primary">€{{ date.price|convert:request }}</span>
 				</div>
 
 				{% if date.status != 'sold_out' and date.status != 'canceled' %}
@@ -479,7 +480,7 @@
 		  <span class="text-xs uppercase font-bold tracking-wider text-base-content/50">Вартість туру</span>
 		  <div class="flex items-baseline gap-1 mt-1">
 			<span class="text-sm font-semibold text-base-content/70">від</span>
-			<span class="text-4xl font-black text-primary">€{{ tour.price_from }}</span>
+			<span class="text-4xl font-black text-primary">{{ tour.price_from|convert:request }}</span>
 			<span class="text-xs text-base-content/60">/ особа</span>
 		  </div>
 		</div>
@@ -494,7 +495,7 @@
 			{% for date in tour.dates.all %}
 				{% if date.status != 'sold_out' and date.status != 'canceled' %}
 				<option value="{{ date.id }}">
-					{{ date.start_date|date:"d.m" }} - {{ date.end_date|date:"d.m.Y" }} (€{{ date.price }})
+					{{ date.start_date|date:"d.m" }} - {{ date.end_date|date:"d.m.Y" }} (€{{ date.price|convert:request }})
 				</option>
 				{% endif %}
 			{% endfor %}

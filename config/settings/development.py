@@ -3,6 +3,7 @@ from .base import *
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+BASE_URL = "http://localhost:8000"
 
 SECRET_KEY = 'django-insecure-8i_d2i&2$pj6-tffzw&q^1rg_+(v-!9qu90_9o22oxo67j!d)x'
 

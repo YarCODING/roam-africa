@@ -129,6 +129,8 @@ class Booking(models.Model):
                 if old_status != self.status:
                     if old_status == self.Status.NEW and self.status == self.Status.CONFIRMED:
                         status_changed_to = 'confirmed'
+                        self.tour_date.available_seats = max(0, self.tour_date.available_seats - self.persons_count)
+
                     elif old_status == self.Status.PAID and self.status == self.Status.COMPLETED:
                         status_changed_to = 'completed'
                     elif old_status in [self.Status.NEW, self.Status.CONFIRMED] and self.status == self.Status.CANCELED:

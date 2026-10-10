@@ -1,0 +1,136 @@
+{% extends "layouts/blank.html" %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto space-y-8">
+
+    <div class="text-center space-y-2">
+      <h1 class="text-3xl font-extrabold text-base-content tracking-tight">Відгуки мандрівників</h1>
+      <p class="text-sm text-base-content/60">Враження та оцінки наших туристів про проведені експедиції</p>
+    </div>
+
+    <div class="stats stats-vertical sm:stats-horizontal shadow-sm bg-base-100 w-full border border-base-200">
+      
+      <div class="stat py-4 px-6">
+        <div class="stat-figure text-warning">
+          <i class="fa-solid fa-star text-2xl"></i>
+        </div>
+        <div class="stat-title text-xs">Загальний рейтинг</div>
+        <div class="stat-value text-xl text-primary font-black mt-0.5">
+          {{ stats.avg_total|default:"5.0"|floatformat:1 }} <span class="text-xs text-base-content/40 font-normal">/ 5</span>
+        </div>
+        <div class="stat-desc text-[11px]">{{ stats.total_count }} відгуків</div>
+      </div>
+      
+      <div class="stat py-4 px-6">
+        <div class="stat-figure text-primary/70">
+          <i class="fa-solid fa-person-walking text-xl"></i>
+        </div>
+        <div class="stat-title text-xs">Гід та супровід</div>
+        <div class="stat-value text-xl font-bold mt-0.5">
+          {{ stats.avg_guide|default:"5.0"|floatformat:1 }} <span class="text-xs text-base-content/40 font-normal">/ 5</span>
+        </div>
+      </div>
+      
+      <div class="stat py-4 px-6">
+        <div class="stat-figure text-primary/70">
+          <i class="fa-solid fa-route text-xl"></i>
+        </div>
+        <div class="stat-title text-xs">Програма</div>
+        <div class="stat-value text-xl font-bold mt-0.5">
+          {{ stats.avg_program|default:"5.0"|floatformat:1 }} <span class="text-xs text-base-content/40 font-normal">/ 5</span>
+        </div>
+      </div>
+
+      <div class="stat py-4 px-6">
+        <div class="stat-figure text-primary/70">
+          <i class="fa-solid fa-hotel text-xl"></i>
+        </div>
+        <div class="stat-title text-xs">Логістика</div>
+        <div class="stat-value text-xl font-bold mt-0.5">
+          {{ stats.avg_logistic|default:"5.0"|floatformat:1 }} <span class="text-xs text-base-content/40 font-normal">/ 5</span>
+        </div>
+      </div>
+      
+    </div>
+
+    <div class="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+      {% for review in reviews %}
+        <div class="break-inside-avoid inline-block w-full max-w-sm">
+          
+          <div class="card bg-base-100 border border-base-300 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02] hover:z-10
+                      {% if forloop.counter|divisibleby:3 %}-rotate-1 hover:rotate-0
+                      {% elif forloop.counter|divisibleby:2 %}rotate-1 hover:rotate-0
+                      {% else %}-rotate-2 hover:rotate-0{% endif %}">
+            
+            <div class="card-body p-4 sm:p-5">
+              
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="avatar shrink-0">
+                    <div class="w-9 h-9 rounded-full ring-1 ring-base-200 overflow-hidden">
+                      {% if review.user.avatar %}
+                        <img src="{{ review.user.avatar }}" alt="{{ review.user.name }}" class="object-cover w-full h-full" />
+                      {% else %}
+                        <div class="bg-primary text-primary-content w-full h-full flex items-center justify-center font-bold text-xs uppercase">
+                          {{ review.user.name|default:review.user.username|slice:":1" }}
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  
+                  <div class="truncate">
+                    <h4 class="font-bold text-xs text-base-content flex items-center truncate">
+                      {{ review.user.name|default:review.user.username }}
+                      {% if review.user == user %}
+                        <span class="text-[9px] font-normal text-primary ml-1 shrink-0">● Ваш відгук</span>
+                      {% endif %}
+                    </h4>
+                    <span class="text-[10px] text-base-content/50 block">{{ review.created_at|date:"d E Y" }}</span>
+                  </div>
+                </div>
+
+                <div class="badge badge-primary badge-sm badge-soft shrink-0 gap-1 px-2">
+                  <i class="fa-solid fa-star text-warning text-[10px]"></i>
+                  <span class="text-xs font-bold">{{ review.rating_total }}</span>
+                </div>
+              </div>
+
+              <div class="mt-2">
+                <span class="badge badge-ghost text-[10px] h-auto py-0.5 px-2 font-medium text-base-content/70">
+                  <i class="fa-solid fa-compass text-[9px] mr-1 text-primary"></i> {{ review.tour.title }}
+                </span>
+              </div>
+
+              {% if review.text_review %}
+                <p class="text-xs text-base-content/80 mt-2.5 whitespace-pre-line leading-relaxed font-light">
+                  "{{ review.text_review }}"
+                </p>
+              {% endif %}
+
+              <div class="flex flex-wrap gap-x-3 gap-y-1 mt-3 pt-2.5 border-t border-base-200 text-[11px] text-base-content/60">
+                <div class="flex items-center gap-1">
+                  <span>Гід:</span>
+                  <span class="font-bold text-base-content">{{ review.rating_guide }}/5</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span>Програма:</span>
+                  <span class="font-bold text-base-content">{{ review.rating_program }}/5</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span>Логістика:</span>
+                  <span class="font-bold text-base-content">{{ review.rating_logistic }}/5</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends "layouts/blank.html" %}
+
+{% block content %}
+<div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto space-y-8">
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6">
+      <div>
+        <h1 class="text-3xl font-extrabold text-base-content tracking-tight">Каталог турів</h1>
+        <p class="text-sm text-base-content/60 mt-1">Знайдіть свою ідеальну подорож</p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <label for="sort-select" class="text-sm font-medium whitespace-nowrap text-base-content/70">
+          <i class="fa-solid fa-arrow-down-wide-short mr-1"></i> Сортувати:
+        </label>
+        <select 
+          id="sort-select"
+          name="sort" 
+          hx-get="{% url 'tour_list' %}"
+          hx-target="#tour-grid-container"
+          hx-include="#filter-form"
+          hx-push-url="true"
+          hx-indicator=".htmx-indicator"
+          class="select select-bordered select-sm w-full max-w-xs">
+          <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Спочатку нові</option>
+          <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Найдешевші</option>
+          <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Найдорожчі</option>
+          <option value="duration_asc" {% if sort_by == 'duration_asc' %}selected{% endif %}>За тривалістю (короткі)</option>
+          <option value="duration_desc" {% if sort_by == 'duration_desc' %}selected{% endif %}>За тривалістю (довгі)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+      <aside class="lg:col-span-1">
+        <div class="p-6 rounded-box sticky top-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold flex items-center gap-2">
+              <i class="fa-solid fa-filter text-primary"></i> Фільтри
+            </h2>
+            <a href="{% url 'tour_list' %}" class="link link-hover text-xs text-error">Скинути все</a>
+          </div>
+
+          <form 
+            id="filter-form"
+            hx-get="{% url 'tour_list' %}"
+            hx-target="#tour-grid-container"
+            hx-trigger="change, keyup changed delay:400ms from:input[name='q']"
+            hx-include="#sort-select"
+            hx-push-url="true"
+            hx-indicator=".htmx-indicator"
+            class="space-y-5">
+            
+            <div class="form-control">
+              <label class="label text-xs font-semibold uppercase text-base-content/60">Пошук</label>
+              <div class="relative">
+                <input 
+                  type="text" 
+                  name="q" 
+                  value="{{ search_query }}" 
+                  placeholder="Назва або ключ..." 
+                  class="input input-bordered input-sm w-full pr-8" />
+                <span class="absolute right-2 top-2 text-base-content/40">
+                  <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                </span>
+              </div>
+            </div>
+
+            <div class="form-control">
+              <label class="label text-xs font-semibold uppercase text-base-content/60">Країна</label>
+              <select name="country" class="select select-bordered select-sm w-full">
+                <option value="">Усі країни</option>
+                {% for country in countries %}
+                  <option value="{{ country.id }}" {% if selected_country == country.id|stringformat:"i" %}selected{% endif %}>
+                    {{ country.name }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-control">
+              <label class="label text-xs font-semibold uppercase text-base-content/60">Складність</label>
+              <select name="difficulty" class="select select-bordered select-sm w-full">
+                <option value="">Будь-яка</option>
+                {% for code, label in difficulties %}
+                  <option value="{{ code }}" {% if selected_difficulty == code %}selected{% endif %}>
+                    {{ label }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+          </form>
+        </div>
+      </aside>
+
+      <main class="lg:col-span-3">
+        {% include "tours/includes/tour_grid.html" %}
+      </main>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -10,4 +10,6 @@ urlpatterns = [
     path('<int:booking_id>/pay/', create_stripe_checkout_session, name='pay_booking'),
     path('payment/success/<int:booking_id>/', payment_success, name='payment_success'),
     path('payment/cancel/<int:booking_id>/', payment_cancel, name='payment_cancel'),
+    path('<int:booking_id>/ticket/', download_booking_ticket, name='download_ticket'),
+    path('<int:booking_id>/verify/', verify_booking_view, name='verify_booking'),
 ]

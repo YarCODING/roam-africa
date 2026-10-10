@@ -295,4 +295,5 @@ HIJACK_PERMISSION_CHECK = "config.settings.base.custom_hijack_check"
 AUTO_CONVERT_MONEY = True
 EXCHANGE_BACKEND = 'djmoney.contrib.exchange.backends.OpenExchangeRatesBackend'
 OPEN_EXCHANGE_RATES_APP_ID = 'affa1ca0af1648bf89d99825f8affd4e'
-CURRENCIES = ('EUR', 'USD', 'UAH')
+DEFAULT_CURRENCY = 'EUR'
+CURRENCIES = ['EUR', 'USD', 'UAH']

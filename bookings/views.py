@@ -11,6 +11,7 @@ from django.db import transaction
 from tours.models import Tour, TourDate, TourReview
 from .forms import BookingForm
 from .models import Booking
+from .pdf_utils import generate_booking_ticket_pdf
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -123,12 +124,12 @@ def create_stripe_checkout_session(request, booking_id):
         'payment_method_types': ['card'],
         'line_items': [{
             'price_data': {
-                'currency': 'eur',
                 'product_data': {
                     'name': booking.tour_date.tour.title,
                     'description': f"Заїзд: {booking.tour_date.start_date.strftime('%d.%m.%Y')} — {booking.tour_date.end_date.strftime('%d.%m.%Y')} ({booking.persons_count} осіб)",
                 },
-                'unit_amount': int(booking.total_price * 100),
+                'unit_amount': int(booking.total_price.amount * 100),
+                'currency': str(booking.total_price.currency.code).lower(),
             },
             'quantity': 1,
         }],
@@ -188,7 +189,6 @@ def stripe_webhook(request):
                     booking.save()
 
                     tour_date = booking.tour_date
-                    tour_date.available_seats = max(0, tour_date.available_seats - booking.persons_count)
                     tour_date.save()
             except (Booking.DoesNotExist, ValueError):
                 pass
@@ -214,3 +214,31 @@ def payment_success(request, booking_id):
 def payment_cancel(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id, customer=request.user)
     return render(request, 'bookings/payment_cancel.html', {'booking': booking})
+
+
+@login_required
+def download_booking_ticket(request, booking_id):
+    if request.user.is_staff:
+        booking = get_object_or_404(Booking, id=booking_id)
+    else:
+        booking = get_object_or_404(Booking, id=booking_id, customer=request.user)
+
+    pdf_data = generate_booking_ticket_pdf(booking)
+
+    response = HttpResponse(pdf_data, content_type='application/pdf')
+    filename = f"ticket_roam_africa_{booking.id}.pdf"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    
+    return response
+
+
+def verify_booking_view(request, booking_id):
+    booking = get_object_or_404(
+        Booking.objects.select_related(
+            'tour_date__tour', 
+            'tour_date__tour__country'
+        ), 
+        id=booking_id
+    )
+    
+    return render(request, 'bookings/verify.html', {'booking': booking})

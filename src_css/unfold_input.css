@@ -1,5 +1,5 @@
-@import 'tailwindcss';
 @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@200..900&display=swap');
+@import 'tailwindcss';
 
 :root {
   --color-base-100: oklch(97% 0.01 75);      /* #FAF6F0 */
@@ -29,11 +29,15 @@
   --radius-box: 0.5rem;
 }
 
+@theme {
+  --font-unbounded: 'Unbounded', sans-serif;
+}
+
 h1, h2, h3, h4, h5, h6, 
 #site-name a,
 .font-bold
 {
-    font-family: 'Unbounded', sans-serif !important;
+  font-family: 'Unbounded', sans-serif !important;
 }
 
 .unfold-input, 

@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.db.models import Avg, Count
+from django.core.paginator import Paginator
+from django.db.models import Avg, Count, Q
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponseForbidden
@@ -78,6 +79,71 @@ def tour_view(request, slug):
 
     return render(request, 'tours/tour_detail.html', context)
 
+
+def tour_list(request):
+    tours = Tour.objects.filter(is_active=True).select_related('country')
+
+    search_query = request.GET.get('q', '').strip()
+    if search_query:
+        tours = tours.filter(
+            Q(title__icontains=search_query) | 
+            Q(description__icontains=search_query)
+        )
+
+    country_id = request.GET.get('country')
+    if country_id:
+        tours = tours.filter(country_id=country_id)
+
+    difficulty = request.GET.get('difficulty')
+    if difficulty in dict(Tour.Difficulty.choices):
+        tours = tours.filter(difficulty=difficulty)
+
+    sort_by = request.GET.get('sort', '-created_at')
+    allowed_sorts = {
+        'price_asc': 'price_from',
+        'price_desc': '-price_from',
+        'duration_asc': 'duration_days',
+        'duration_desc': '-duration_days',
+        'newest': '-created_at',
+    }
+    tours = tours.order_by(allowed_sorts.get(sort_by, '-created_at'))
+
+    paginator = Paginator(tours, 6)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'countries': Country.objects.all(),
+        'difficulties': Tour.Difficulty.choices,
+        'selected_country': country_id,
+        'selected_difficulty': difficulty,
+        'search_query': search_query,
+        'sort_by': sort_by,
+    }
+
+    if request.headers.get('HX-Request'):
+        return render(request, 'tours/includes/tour_grid.html', context)
+
+    return render(request, 'tours/tour_list.html', context)
+
+def reviews_page(request):
+    reviews = TourReview.objects.filter(rating_total__gte=4)\
+                               .select_related('user', 'tour')\
+                               .order_by('-created_at')
+
+    stats = TourReview.objects.aggregate(
+        avg_total=Avg('rating_total'),
+        avg_guide=Avg('rating_guide'),
+        avg_program=Avg('rating_program'),
+        avg_logistic=Avg('rating_logistic'),
+        total_count=Count('id')
+    )
+
+    return render(request, 'tours/reviews.html', {
+        'reviews': reviews,
+        'stats': stats,
+    })
 
 @login_required
 def leave_review_view(request, slug):

@@ -1,0 +1,89 @@
+{% extends "layouts/blank.html" %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-5xl mx-auto space-y-12">
+
+    <div class="text-center space-y-2">
+      <span class="text-xs font-bold uppercase tracking-wider text-primary">Експерти з африканських експедицій</span>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-base-content tracking-tight">Про Roam Africa</h1>
+    </div>
+
+    <div class="card bg-base-100 overflow-hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-2">
+        
+        <figure class="relative lg:h-auto w-full rounded-2xl overflow-hidden bg-base-300 h-full object-cover">
+          <img 
+            src="{% static 'images/about.jpg' %}"
+            alt="Roam Africa - Подорожі Африкою" 
+            class="w-full h-full object-cover" 
+          />
+          <div class="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent lg:hidden"></div>
+        </figure>
+
+        <div class="card-body p-6 sm:p-8 justify-center space-y-4">
+          <h2 class="text-2xl font-bold text-base-content">
+            Ми не просто продаємо тури — ми закохуємо в Африку
+          </h2>
+          
+          <p class="text-sm text-base-content/80 leading-relaxed font-light">
+            <strong class="font-semibold text-base-content">Roam Africa</strong> — це туроператор вузької спеціалізації. Ми фокусуємося виключно на Африканському континенті, що дозволяє нам знати кожен маршрут до найдрібніших деталей: від сходження на Кіліманджаро до диких сафарі в Танзанії та експедицій Західною Африкою.
+          </p>
+
+          <p class="text-sm text-base-content/80 leading-relaxed font-light">
+            Наша місія — показати справжню, дику та водночас безпечну Африку. Ми організовуємо авторські групи з досвідченими гідами, дбаємо про комфортну логістику та створюємо умови, за яких кожна подорож стає головною пригодою життя.
+          </p>
+
+          <div class="pt-2">
+            <a href="{% url 'tour_list' %}" class="group btn btn-primary btn-sm gap-2">
+              Переглянути наші тури
+              <i class="fa-solid fa-arrow-right text-xs transition-transform duration-200 group-hover:translate-x-1"></i>
+            </a>
+            <a href="{% url 'review_list' %}" class="group btn btn-secondary btn-outline btn-sm gap-2">
+              Відгуки від клієнтів
+              <i class="fa-solid fa-arrow-right text-xs transition-transform duration-200 group-hover:translate-x-1"></i>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <div class="card bg-base-200 border border-base-200 p-5 shadow-sm text-center space-y-2">
+        <div class="text-primary text-2xl">
+          <i class="fa-solid fa-compass"></i>
+        </div>
+        <h3 class="font-bold text-sm text-base-content">100% Африка</h3>
+        <p class="text-xs text-base-content/60">
+          Ніяких розпилень. Ми знаємо всі особливості, сезони та локації континенту.
+        </p>
+      </div>
+
+      <div class="card bg-base-200 border border-base-200 p-5 shadow-sm text-center space-y-2">
+        <div class="text-primary text-2xl">
+          <i class="fa-solid fa-user-shield"></i>
+        </div>
+        <div class="font-bold text-sm text-base-content">Безпека та супровід</div>
+        <p class="text-xs text-base-content/60">
+          Перевірені локальні гіди, надійний транспорт та цілодобова підтримка.
+        </p>
+      </div>
+
+      <div class="card bg-base-200 border border-base-200 p-5 shadow-sm text-center space-y-2">
+        <div class="text-primary text-2xl">
+          <i class="fa-solid fa-person-hiking"></i>
+        </div>
+        <h3 class="font-bold text-sm text-base-content">Малі групи</h3>
+        <p class="text-xs text-base-content/60">
+          Формат експедицій до 10-12 осіб для максимального занурення та комфорту.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

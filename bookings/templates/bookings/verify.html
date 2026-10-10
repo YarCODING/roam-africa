@@ -1,0 +1,156 @@
+{% extends 'layouts/blank.html' %}
+{% load static currency_tags %}
+
+{% block content %}
+<div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-5xl mx-auto space-y-8">
+
+    <div class="bg-base-200 border border-base-100 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        {% if booking.status == 'paid' %}
+          <div class="w-12 h-12 rounded-full bg-success/20 text-success flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-check"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="badge badge-success badge-sm text-neutral font-semibold">Дійсний квиток</span>
+              <span class="text-xs text-base-content/60">Автентичність підтверджено</span>
+            </div>
+            <h1 class="text-2xl font-bold font-unbounded text-base-content mt-1">Квиток №{{ booking.id }}</h1>
+          </div>
+        {% elif booking.status == 'confirmed' %}
+            <div class="w-12 h-12 rounded-full bg-error/20 text-error flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-exclamation"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                <span class="badge badge-error badge-sm text-neutral font-semibold">Не сплачено</span>
+                </div>
+                <h1 class="text-2xl font-bold font-unbounded text-base-content mt-1">Квиток №{{ booking.id }}</h1>
+            </div>
+        {% else %}
+          <div class="w-12 h-12 rounded-full bg-warning/20 text-warning flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="badge badge-warning badge-sm font-semibold">{{ booking.get_status_display }}</span>
+            </div>
+            <h1 class="text-2xl font-bold font-unbounded text-base-content mt-1">Квиток №{{ booking.id }}</h1>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="text-right text-xs text-base-content/60">
+        Дата оформлення:<br>
+        <span class="text-sm font-medium text-base-content">{{ booking.created_at|date:"d.m.Y о H:i" }}</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <div class="lg:col-span-2 space-y-8">
+        
+        <div class="space-y-4">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-base-content/60">Деталі поїздки</h2>
+          
+          <div class="bg-base-200 border border-base-100 rounded-2xl p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            {% if booking.tour_date.tour.cover_image %}
+              <img src="{{ booking.tour_date.tour.cover_image.url }}" alt="{{ booking.tour_date.tour.title }}" class="w-full sm:w-36 h-28 object-cover rounded-xl shrink-0" />
+            {% endif %}
+            <div class="space-y-2">
+              {% if booking.tour_date.tour.country %}
+                <span class="badge badge-primary text-xs uppercase font-semibold">{{ booking.tour_date.tour.country.name }}</span>
+              {% endif %}
+              <h3 class="text-xl font-bold font-unbounded text-base-content leading-snug">
+                {{ booking.tour_date.tour.title }}
+              </h3>
+              <p class="text-sm text-base-content/70">
+                {{ booking.tour_date.start_date|date:"d.m.Y" }} — {{ booking.tour_date.end_date|date:"d.m.Y" }}
+              </p>
+              <div class="flex gap-4 text-xs text-base-content/60 pt-1">
+                <span>Тривалість: <strong class="text-base-content">{{ booking.tour_date.tour.duration_days }} днів</strong></span>
+                <span>Складність: <strong class="text-base-content">{{ booking.tour_date.tour.get_difficulty_display }}</strong></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider border-base-100 my-0"></div>
+
+        <div class="space-y-4">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-base-content/60">Контактні дані</h2>
+          
+          <div class="bg-base-200 border border-base-100 rounded-2xl p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <span class="text-xs text-base-content/60 block mb-1">Ім'я та прізвище:</span>
+              <span class="text-base font-bold text-base-content">{{ booking.customer_name }}</span>
+            </div>
+            <div>
+              <span class="text-xs text-base-content/60 block mb-1">Номер телефону:</span>
+              <span class="text-base font-bold text-base-content">{{ booking.customer_phone }}</span>
+            </div>
+            <div>
+              <span class="text-xs text-base-content/60 block mb-1">Email адреса:</span>
+              <span class="text-base font-bold text-base-content">{{ booking.customer_email }}</span>
+            </div>
+            <div>
+              <span class="text-xs text-base-content/60 block mb-1">Кількість осіб:</span>
+              <span class="text-base font-bold text-base-content">{{ booking.persons_count }}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="space-y-6">
+        
+        <div class="bg-base-200 border border-base-100 rounded-2xl p-6 space-y-6 shadow-lg">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-base-content/60">Підсумок оплати</h2>
+          
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between items-center">
+              <span class="text-base-content/70">Ціна за 1 особу</span>
+              <span class="font-semibold text-base-content">{{ booking.tour_date.price_per_person|convert:request }} </span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-base-content/70">Учасників</span>
+              <span class="font-semibold text-base-content">× {{ booking.persons_count }}</span>
+            </div>
+          </div>
+
+          <div class="border-t border-base-100 pt-4 flex justify-between items-baseline">
+            <span class="font-bold text-base-content">Разом:</span>
+            <span class="text-2xl font-bold font-unbounded text-primary">{{ booking.total_price|convert:request }} </span>
+          </div>
+
+          {% if booking.status == 'paid' %}
+            <div class="bg-success/10 border border-success/20 text-success text-xs p-3 rounded-xl flex items-start gap-2">
+              <i class="fa-solid fa-check"></i>
+              <span>Оплату отримано. Квиток перевірено та дійсний.</span>
+            </div>
+          {% elif booking.status == 'confirmed' %}
+            <div class="bg-warning/10 border border-warning/20 text-warning text-xs p-3 rounded-xl flex items-start gap-2">
+              <i class="fa-solid fa-exclamation"></i>
+              <span>Не сплачено.</span>
+            </div>
+          {% endif %}
+        </div>
+
+
+        <div class="bg-base-200 border border-base-100 rounded-2xl p-6 space-y-4 shadow-lg">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-base-content/60">Квитки</h2>
+          
+          <a href="{% url 'download_ticket' booking.id %}" class="btn btn-primary w-full text-primary-content font-bold flex items-center justify-center gap-2">
+            <i class="fa-solid fa-file-arrow-down"></i>
+            Завантажити PDF-квиток
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

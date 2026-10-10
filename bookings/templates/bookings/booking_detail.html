@@ -1,4 +1,5 @@
 {% extends 'layouts/blank.html' %}
+{% load currency_tags %}
 
 {% block content %}
 <div class="max-w-5xl mx-auto py-10 px-4 md:px-8">
@@ -101,7 +102,7 @@
         <div class="space-y-3 text-sm pb-4 border-b border-base-content/10">
           <div class="flex justify-between">
             <span class="text-base-content/70">Ціна за 1 особу</span>
-            <span class="font-semibold">{{ booking.tour_date.price }} €</span>
+            <span class="font-semibold">{{ booking.tour_date.price|convert:request }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-base-content/70">Учасників</span>
@@ -111,7 +112,7 @@
 
         <div class="flex justify-between items-end pt-2">
           <span class="text-sm font-bold">Разом:</span>
-          <span class="text-3xl font-black text-primary">{{ booking.total_price }} €</span>
+          <span class="text-3xl font-black text-primary">{{ booking.total_price|convert:request }}</span>
         </div>
 
         <div class="pt-2">
@@ -133,11 +134,24 @@
             <form method="post" action="{% url 'pay_booking' booking.id %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-primary btn-wide rounded-2xl font-bold px-8 w-full shadow-lg shadow-primary/25">
-                Оплатити {{ booking.total_price }} €
+                Оплатити {{ booking.total_price|convert:request }}
                 </button>
             </form>
         {% endif %}
       </div>
+
+      {% if booking.status == 'paid' %}
+       <div class="bg-base-200/50 p-6 rounded-3xl border border-base-content/10 space-y-4">
+        <h2 class="text-xs uppercase font-bold tracking-wider text-base-content/50">Квитки</h2>
+
+        <div class="flex justify-center">
+          <a href="{% url 'download_ticket' booking.id %}" class="btn btn-wide btn-primary">
+            <i class="fa-solid fa-file-arrow-down"></i>
+            завантажити PDF-квиток
+          </a>
+        </div>
+      </div>
+      {% endif %}
 
     </div>
 

@@ -1,4 +1,5 @@
 {% extends 'layouts/blank.html' %}
+{% load currency_tags %}
 
 {% block content %}
 <div class="min-h-[70vh] flex items-center justify-center px-4 py-12">
@@ -21,7 +22,7 @@
                 </div>
                 <div class="flex justify-between">
                     <span class="text-base-content/60">Сума:</span>
-                    <span class="font-semibold text-success">{{ booking.total_price }} €</span>
+                    <span class="font-semibold text-success">{{ booking.total_price|convert:request }}</span>
                 </div>
             </div>
 
