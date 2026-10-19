@@ -1,10 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.db.models import Avg, Count, Q
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponseForbidden
-from .models import Country, Tour, TourReview
+from .models import Country, Tour, TourReview, Favorite
 from .forms import VisaCheckForm, TourReviewForm
 from .services import get_visa_requirement
 from bookings.models import Booking
@@ -63,6 +64,10 @@ def tour_view(request, slug):
         
         visa_info = get_visa_requirement(user_citizenship, destination_code)
 
+    is_favorite = False
+    if request.user.is_authenticated:
+        is_favorite = Favorite.objects.filter(user=request.user, tour=tour).exists()
+
     context = {
         'tour': tour,
         'reviews': reviews,
@@ -72,9 +77,11 @@ def tour_view(request, slug):
         'visa_info': visa_info,
         'has_completed': has_completed,
         'already_reviewed': already_reviewed,
+        'is_favorite': is_favorite,
     }
 
-    if request.headers.get('HX-Request'):
+
+    if request.htmx:
         return render(request, 'tours/includes/visa_result.html', context)
 
     return render(request, 'tours/tour_detail.html', context)
@@ -122,7 +129,7 @@ def tour_list(request):
         'sort_by': sort_by,
     }
 
-    if request.headers.get('HX-Request'):
+    if request.htmx:
         return render(request, 'tours/includes/tour_grid.html', context)
 
     return render(request, 'tours/tour_list.html', context)
@@ -182,3 +189,30 @@ def leave_review_view(request, slug):
         'tour': tour,
     }
     return render(request, 'tours/leave_review.html', context)
+
+
+@login_required
+def toggle_favorite(request, slug):
+    tour = get_object_or_404(Tour, slug=slug)
+    favorite, created = Favorite.objects.get_or_create(user=request.user, tour=tour)
+    
+    if not created:
+        favorite.delete()
+        is_favorite = False
+    else:
+        is_favorite = True
+
+    if request.htmx:
+        return JsonResponse({"is_favorite": is_favorite, "tour_slug": slug})
+    
+    return redirect(request.META.get("HTTP_REFERER", "tour_list"))
+
+@login_required
+def compare_favorites(request):
+    favorites = Favorite.objects.filter(user=request.user).select_related("tour", "tour__country", "tour__manager")
+    tours = [fav.tour for fav in favorites]
+    
+    context = {
+        "tours": tours,
+    }
+    return render(request, "tours/compare_favorites.html", context)

@@ -1,4 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.http import require_POST
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import int_to_base36
 from django.urls import reverse
@@ -65,28 +68,30 @@ def profile_settings_view(request):
 @login_required
 def profile_emailchange(request):
     if request.htmx:
+        if request.GET.get('cancel'):
+            email_text = request.user.email if request.user.email else "Не вказано"
+            return render(request, 'users/partials/email_display.html', {'email': email_text})
+        
         form = EmailForm(instance=request.user)
-        return render(request, 'partials/email_form.html', {'form':form})
+        return render(request, 'users/partials/email_form.html', {'form': form})
     
     if request.method == 'POST':
         form = EmailForm(request.POST, instance=request.user)
-
         if form.is_valid():
             email = form.cleaned_data['email']
             
-            # Check if the email already exists
             if User.objects.filter(email=email).exclude(id=request.user.id).exists():
-                messages.warning(request, f'{email} is already in use.')
+                messages.warning(request, f'{email} вже використовується.')
                 return redirect('profile-settings')
             
             form.save() 
             
             email_address = EmailAddress.objects.get(user=request.user, email=request.user.email)
             email_address.send_confirmation(request)
-            
+            messages.success(request, 'Лист із підтвердженням надіслано.')
             return redirect('profile-settings')
         else:
-            messages.warning(request, 'Form not valid')
+            messages.warning(request, 'Перевірте правильність введених даних.')
             return redirect('profile-settings')
         
     return redirect('home')
@@ -125,3 +130,14 @@ def profile_delete_view(request):
         return redirect('home')
     
     return render(request, 'users/profile_delete.html')
+
+
+@login_required
+@require_POST
+@csrf_exempt
+def toggle_newsletter_view(request):
+    user = request.user
+    user.is_subscribed_to_newsletter = not user.is_subscribed_to_newsletter
+    user.save()
+    
+    return HttpResponse(status=200)

@@ -2,80 +2,99 @@
 
 {% block content %}
 
-<h1 class="text-2xl font-bold mb-6">Налаштування акаунта</h1>
+<h1 class="text-2xl sm:text-3xl font-bold mb-6">Налаштування акаунта</h1>
 
-<div class="overflow-x-auto">
-    <table class="table w-full">
-        <tbody>
-            <tr>
-                <td class="font-bold text-base">Електронна пошта</td>
-                <td id="email-address">
+<div class="divide-y divide-base-200">
+    
+    <div class="py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="space-y-1.5">
+            <div class="font-bold text-base sm:text-lg">Електронна пошта</div>
+            <div class="flex flex-wrap items-center gap-2">
+                <span id="email-address" class="text-sm sm:text-base">
                     {% if user.email %}{{ user.email }}{% else %}Не вказано{% endif %}
-                </td>
-                <td class="text-right">
-                    <a id="email-edit" class="btn btn-link btn-xs text-primary p-0"
-                       hx-get="{% url 'profile-emailchange' %}"
-                       hx-target="#email-address"
-                       hx-swap="innerHTML">
-                        Змінити
-                    </a>
-                </td>
-            </tr>
-            <tr>
-                <td></td>
-                <td>
-                    {% if user.emailaddress_set.first.verified %}
-                    <span class="badge badge-success gap-1">Підтверджено</span>
-                    {% else %}
-                    <span class="badge badge-warning gap-1">Не підтверджено</span>
-                    {% endif %}
-                </td>
-                <td class="text-right">
-                    {% if not user.emailaddress_set.first.verified %}
-                    <a href="{% url 'profile-emailverify' %}" class="btn btn-link btn-xs text-primary p-0">
-                        Підтвердити
-                    </a>
-                    {% endif %}
-                </td>
-            </tr>
+                </span>
+                {% if user.emailaddress_set.first.verified %}
+                    <span class="badge badge-success badge-sm gap-1">Підтверджено</span>
+                {% else %}
+                    <span class="badge badge-warning badge-sm gap-1">Не підтверджено</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="flex items-center gap-3 pt-2 sm:pt-0">
+            <a id="email-edit" class="link link-primary text-sm font-medium"
+            hx-get="{% url 'profile-emailchange' %}"
+            hx-target="#email-address"
+            hx-swap="innerHTML">
+                Змінити
+            </a>
+            {% if not user.emailaddress_set.first.verified %}
+                <span class="text-base-content/30">•</span>
+                <a href="{% url 'profile-emailverify' %}" class="link link-primary text-sm font-medium">
+                    Підтвердити
+                </a>
+            {% endif %}
+        </div>
+    </div>
 
-            <tr>
-                <td class="font-bold text-base">Telegram бот</td>
-                <td>
-                    {% if is_telegram_connected %}
-                        <span class="badge badge-success gap-1">Підключено</span>
-                    {% else %}
-                        <span class="text-sm opacity-70">Отримуйте сповіщення та бронюйте в Telegram</span>
-                    {% endif %}
-                </td>
-                <td class="text-right">
-                    {% if is_telegram_connected %}
-                        <span class="text-xs text-emerald-600 font-medium">Акаунт прив'язано</span>
-                    {% else %}
-                        <a href="{{ telegram_url }}" target="_blank" class="btn btn-primary btn-xs">
-                            Підключити
-                        </a>
-                    {% endif %}
-                </td>
-            </tr>
+    <div class="py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="space-y-1.5 max-w-md">
+            <div class="font-bold text-base sm:text-lg">Telegram бот</div>
+            <div>
+                {% if is_telegram_connected %}
+                    <span class="badge badge-success gap-1">Підключено</span>
+                {% else %}
+                    <p class="text-xs sm:text-sm opacity-70">Отримуйте сповіщення та бронюйте в Telegram</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="pt-2 sm:pt-0 sm:text-right">
+            {% if is_telegram_connected %}
+                <span class="text-sm text-emerald-600 font-medium">Акаунт прив'язано</span>
+            {% else %}
+                <a href="{{ telegram_url }}" target="_blank" class="btn btn-primary btn-md sm:btn-sm">
+                    Підключити
+                </a>
+            {% endif %}
+        </div>
+    </div>
 
-            <tr>
-                <td class="font-bold text-base text-error">Видалення акаунта</td>
-                <td class="text-sm opacity-70">
-                    Після видалення акаунт буде втрачено назавжди.
-                </td>
-                <td class="text-right">
-                    {% if user.is_staff %}
-                        <span class="font-medium text-red-600 dark:text-red-400">Неможливо видалити обліковий запис адміністратора.</span>
-                    {% else %}
-                        <a href="{% url 'profile-delete' %}" class="btn btn-error btn-xs">
-                            Видалити
-                        </a>
-                    {% endif %}
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="py-4 sm:py-5 flex flex-row items-center justify-between gap-4">
+        <div class="space-y-1 max-w-md">
+            <div class="font-bold text-base sm:text-lg">Новинна розсилка</div>
+            <p class="text-xs sm:text-sm opacity-70">
+                Отримувати повідомлення про новини та тури
+            </p>
+        </div>
+        <div>
+            <input type="checkbox" 
+                   name="is_subscribed_to_newsletter" 
+                   class="toggle toggle-lg sm:toggle-md"
+                   {% if user.is_subscribed_to_newsletter %}checked{% endif %}
+                   hx-post="{% url 'toggle-newsletter' %}"
+                   hx-swap="none" />
+        </div>
+    </div>
+
+    <div class="py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="space-y-1.5 max-w-md">
+            <div class="font-bold text-base sm:text-lg text-error">Видалення акаунта</div>
+            <p class="text-xs sm:text-sm opacity-70">
+                Після видалення акаунт буде втрачено назавжди.
+            </p>
+        </div>
+        <div class="pt-2 sm:pt-0 sm:text-right">
+            {% if user.is_staff %}
+                <span class="text-xs sm:text-sm font-medium text-red-600 dark:text-red-400">
+                    Неможливо видалити обліковий запис адміністратора.
+                </span>
+            {% else %}
+                <a href="{% url 'profile-delete' %}" class="btn btn-error btn-md sm:btn-sm">
+                    Видалити
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
 </div>
 
 {% endblock %}

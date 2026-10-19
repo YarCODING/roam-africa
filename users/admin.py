@@ -3,6 +3,8 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
+from allauth.account.models import EmailAddress
+from allauth.account.admin import EmailAddressAdmin as BaseEmailAddressAdmin
 
 from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
 from unfold.admin import ModelAdmin
@@ -19,8 +21,11 @@ class UserAdmin(BaseUserAdmin, ModelAdmin):
     list_display = ("name", "username", "email", "is_staff")
 
     fieldsets = (
-            (None, {'fields': ('displayname', 'image',  'info', 'stripe_customer_id', 'telegram_chat_id')}),
+            (None, {'fields': ('displayname', 'image',  'info', 'stripe_customer_id', 'telegram_chat_id', 'is_subscribed_to_newsletter')}),
         ) + BaseUserAdmin.fieldsets
+
+    list_filter = BaseUserAdmin.list_filter
+    list_filter += ("is_subscribed_to_newsletter", )
 
     form = UserChangeForm
     add_form = UserCreationForm
@@ -73,3 +78,10 @@ class UserAdmin(BaseUserAdmin, ModelAdmin):
 @admin.register(Group)
 class GroupAdmin(BaseGroupAdmin, ModelAdmin):
     pass
+
+admin.site.unregister(EmailAddress)
+
+@admin.register(EmailAddress)
+class EmailAddressAdmin(BaseEmailAddressAdmin, ModelAdmin):
+    list_filter = ("verified", "primary")
+    search_fields = ("email", "user__username", "user__email")

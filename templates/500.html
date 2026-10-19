@@ -1,0 +1,42 @@
+{% extends 'layouts/blank.html' %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-[calc(100vh-100px)] bg-base-100 flex items-center justify-center py-12">
+    <div class="hero-content flex-col lg:flex-row-reverse gap-12 max-w-5xl px-4">
+        
+        <div class="w-full lg:w-1/2 relative">
+            <div class="rounded-xl overflow-hidden aspect-video lg:aspect-square">
+                <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800" 
+                     alt="Технічні роботи" 
+                     class="w-full h-full object-cover opacity-90" />
+            </div>
+        </div>
+
+        <div class="w-full lg:w-1/2 text-center lg:text-left">
+            <div class="relative">
+                <span class="text-8xl sm:text-9xl font-black text-warning/25 select-none block leading-none">
+                    500
+                </span>
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4 relative z-10">
+                    Тимчасова зупинка в дорозі
+                </h1>
+            </div>
+            
+            <p class="text-base-content/70 mb-8 text-base sm:text-lg">
+                На сервері сталася непередбачена технічна неполадка. Наші «механіки» вже працюють над її усуненням, щоб ви могли продовжити подорож.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                <a href="/" class="btn btn-primary gap-2 shadow-lg">
+                    <i class="fa-solid fa-house"></i> На головну
+                </a>
+                <button onclick="window.location.reload();" class="btn btn-outline gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> Оновити сторінку
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

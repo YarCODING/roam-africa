@@ -1,0 +1,27 @@
+<form action="{% url 'profile-emailchange' %}" method="post" class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full" autocomplete="off">
+    {% csrf_token %}
+    
+    <div class="w-full sm:w-auto flex-1">
+        {{ form.email }}
+    </div>
+
+    <div class="flex items-center gap-2">
+        <button class="btn btn-primary btn-sm" type="submit">Зберегти</button>
+        <button type="button" 
+                hx-get="{% url 'profile-emailchange' %}?cancel=1" 
+                hx-target="#email-address" 
+                hx-swap="innerHTML"
+                class="btn btn-ghost btn-sm">
+            Скасувати
+        </button>
+    </div>
+</form>
+
+<a hx-swap-oob="true" 
+   id="email-edit" 
+   class="link link-primary text-sm font-medium"
+   hx-get="{% url 'profile-emailchange' %}"
+   hx-target="#email-address"
+   hx-swap="innerHTML">
+    Змінити
+</a>

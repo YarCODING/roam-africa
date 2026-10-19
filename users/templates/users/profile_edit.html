@@ -32,11 +32,11 @@
     {% endfor %}
 
     <div class="mt-4 flex items-center">
-        <button class="btn btn-primary" type="submit">Зберегти</button>
+        <button class="btn btn-primary btn-md sm:btn-md" type="submit">Зберегти</button>
         {% if onboarding %}
-        <a class="btn btn-ghost ml-2" href="{% url 'home' %}">Пропустити</a>
+        <a class="btn btn-ghost ml-2 btn-md sm:btn-sm" href="{% url 'home' %}">Пропустити</a>
         {% else %}
-        <a class="btn btn-ghost ml-2" href="{{ request.META.HTTP_REFERER }}">Скасувати</a>
+        <a class="btn btn-ghost ml-2 btn-md sm:btn-sm" href="{{ request.META.HTTP_REFERER }}">Скасувати</a>
         {% endif %}
     </div>
 </form>

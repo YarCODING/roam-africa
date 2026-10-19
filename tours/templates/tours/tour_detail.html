@@ -23,27 +23,40 @@
 	</p>
   </section>
 
-  <section id="photos" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-	<div class="md:col-span-3 h-full relative rounded-3xl overflow-hidden shadow-lg group">
-	  {% if tour.cover_image %}
-		<img src="{{ tour.cover_image.url }}" alt="{{ tour.title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-	  {% else %}
-		<div class="w-full h-full bg-base-300 flex items-center justify-center text-base-content/40">Немає обкладинки</div>
-	  {% endif %}
-	</div>
+	<section id="photos" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+		<div class="md:col-span-3 h-full relative rounded-3xl overflow-hidden shadow-lg group">
+			{% if tour.cover_image %}
+			<img src="{{ tour.cover_image.url }}" alt="{{ tour.title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+			{% else %}
+			<div class="w-full h-full bg-base-300 flex items-center justify-center text-base-content/40">Немає обкладинки</div>
+			{% endif %}
 
-	<div class="hidden md:flex flex-col gap-4 h-full">
-	  {% for img in tour.images.all|slice:":2" %}
-		<div class="h-1/2 relative rounded-2xl overflow-hidden shadow-sm group">
-		  <img src="{{ img.image.url }}" alt="{{ img.caption|default:tour.title }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+			<form action="{% url 'toggle_favorite' tour.slug %}" method="post" class="absolute top-4 right-4 z-10">
+			{% csrf_token %}
+			<button type="submit" 
+					class="btn btn-circle btn-sm md:btn-md bg-base-100/70 hover:bg-base-100 border-none backdrop-blur-md shadow-md transition-all text-error hover:scale-110" 
+					title="{% if is_favorite %}Видалити з обраного{% else %}Додати в обране{% endif %}">
+				{% if is_favorite %}
+				<i class="fa-solid fa-heart text-lg md:text-xl"></i>
+				{% else %}
+				<i class="fa-regular fa-heart text-lg md:text-xl"></i>
+				{% endif %}
+			</button>
+			</form>
 		</div>
-	  {% empty %}
-		<div class="h-full rounded-2xl bg-base-200 border border-base-300 flex items-center justify-center text-xs text-base-content/40 p-4 text-center">
-		  Галерея поповниться незабаром
+
+		<div class="hidden md:flex flex-col gap-4 h-full">
+			{% for img in tour.images.all|slice:":2" %}
+			<div class="h-1/2 relative rounded-2xl overflow-hidden shadow-sm group">
+				<img src="{{ img.image.url }}" alt="{{ img.caption|default:tour.title }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+			</div>
+			{% empty %}
+			<div class="h-full rounded-2xl bg-base-200 border border-base-300 flex items-center justify-center text-xs text-base-content/40 p-4 text-center">
+				Галерея поповниться незабаром
+			</div>
+			{% endfor %}
 		</div>
-	  {% endfor %}
-	</div>
-  </section>
+	</section>
 
   {% if not tour.is_active %}
 	<span class="text-red-500 font-bold">[Чернетка — доступна лише адміністраторам]</span>
@@ -298,49 +311,50 @@
 		<h2 class="text-2xl font-bold text-base-content">Розклад заїздів</h2>
 
 		<div class="space-y-3">
-		  {% for date in tour.dates.all %}
+		{% for date in tour.dates.all %}
 			<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-2xl bg-base-200/50 border border-base-200 gap-4 transition-all hover:border-primary/30">
 
-			  <div class="space-y-1">
+			<div class="space-y-1">
 				<div class="font-bold text-base-content text-base">
-				  {{ date.start_date|date:"d.m.Y" }} — {{ date.end_date|date:"d.m.Y" }}
+				{{ date.start_date|date:"d.m.Y" }} — {{ date.end_date|date:"d.m.Y" }}
 				</div>
 				<div class="flex items-center gap-2">
-				  {% if date.status == 'open' %}
+				{% if date.status == 'open' %}
 					<span class="badge badge-success badge-xs"></span>
 					<span class="text-xs text-base-content/70">Набір відкрито (місць: {{ date.available_seats }})</span>
-				  {% elif date.status == 'few_left' %}
+				{% elif date.status == 'few_left' %}
 					<span class="badge badge-warning badge-xs"></span>
 					<span class="text-xs text-warning font-semibold">Мало місць (залишилось: {{ date.available_seats }})</span>
-				  {% elif date.status == 'sold_out' %}
+				{% elif date.status == 'sold_out' %}
 					<span class="badge badge-error badge-xs"></span>
 					<span class="text-xs text-base-content/50">Місць немає</span>
-				  {% elif date.status == 'canceled' %}
+				{% elif date.status == 'canceled' %}
 					<span class="badge badge-ghost badge-xs"></span>
 					<span class="text-xs text-base-content/50">Скасовано</span>
-				  {% endif %}
+				{% endif %}
 				</div>
-			  </div>
+			</div>
 
-			  <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4">
+			<div class="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4">
 				<div class="text-right">
-				  <span class="text-xs text-base-content/60 block">Ціна</span>
-				  <span class="text-lg font-extrabold text-primary">€{{ date.price|convert:request }}</span>
+				<span class="text-xs text-base-content/60 block">Ціна</span>
+				<span class="text-lg font-extrabold text-primary">€{{ date.price|convert:request }}</span>
 				</div>
 
 				{% if date.status != 'sold_out' and date.status != 'canceled' %}
-				  <a href="#booking-form" class="btn btn-primary btn-sm rounded-xl">Обрати</a>
+				<!-- Додали класс select-date-btn и data-date-id -->
+				<button type="button" data-date-id="{{ date.id }}" class="btn btn-primary btn-sm rounded-xl select-date-btn">Обрати</button>
 				{% else %}
-				  <button class="btn btn-disabled btn-sm rounded-xl" disabled>Зайнято</button>
+				<button class="btn btn-disabled btn-sm rounded-xl" disabled>Зайнято</button>
 				{% endif %}
-			  </div>
+			</div>
 
 			</div>
-		  {% empty %}
+		{% empty %}
 			<div class="alert alert-info rounded-2xl">
-			  <span>Наразі немає активних дат заїздів для цього туру.</span>
+			<span>Наразі немає активних дат заїздів для цього туру.</span>
 			</div>
-		  {% endfor %}
+		{% endfor %}
 		</div>
 	  </section>
 
@@ -473,8 +487,8 @@
 		</section>
 	</div>
 
-	<div class="lg:col-span-1 lg:sticky lg:top-6 space-y-6">
-	  <div id="booking-form" class="bg-base-100 p-6 md:p-8 rounded-3xl border border-base-300 shadow-xl space-y-6">
+	<div class="lg:col-span-1 lg:sticky lg:top-22 space-y-6">
+	  <div id="booking-form" class="bg-base-100 p-6 md:p-8 rounded-3xl border border-base-300 shadow-md space-y-6">
 
 		<div class="border-b border-base-200 pb-4">
 		  <span class="text-xs uppercase font-bold tracking-wider text-base-content/50">Вартість туру</span>
@@ -485,30 +499,30 @@
 		  </div>
 		</div>
 
-		<form method="get" action="{% url 'checkout' tour.slug %}" class="space-y-4">
-		<div class="form-control w-full">
-			<label class="label">
-			<span class="label-text font-bold">Оберіть дату заїзду</span>
-			</label>
-			<select name="tour_date" class="select select-bordered w-full rounded-xl focus:select-primary" required>
-			<option value="" disabled selected>Виберіть зі списку...</option>
-			{% for date in tour.dates.all %}
-				{% if date.status != 'sold_out' and date.status != 'canceled' %}
-				<option value="{{ date.id }}">
-					{{ date.start_date|date:"d.m" }} - {{ date.end_date|date:"d.m.Y" }} (€{{ date.price|convert:request }})
-				</option>
-				{% endif %}
-			{% endfor %}
-			</select>
-		</div>
+		<form method="get" action="{% url 'checkout' tour.slug %}" class="space-y-4" id="booking-form">
+			<div class="form-control w-full">
+				<label class="label">
+					<span class="label-text font-bold">Оберіть дату заїзду</span>
+				</label>
+				<select name="tour_date" id="tour-date-select" class="select select-bordered w-full rounded-xl focus:select-primary" required>
+					<option value="" disabled selected>Виберіть зі списку...</option>
+					{% for date in tour.dates.all %}
+						{% if date.status != 'sold_out' and date.status != 'canceled' %}
+						<option value="{{ date.id }}">
+							{{ date.start_date|date:"d.m" }} - {{ date.end_date|date:"d.m.Y" }} (€{{ date.price|convert:request }})
+						</option>
+						{% endif %}
+					{% endfor %}
+				</select>
+			</div>
 
-		{% if tour.is_active %}
-			<button type="submit" class="btn btn-primary btn-block rounded-xl text-base shadow-lg shadow-primary/20">
-			Перейти до бронювання
-			</button>
-		{% else %}
-			<span class="text-red-500 font-bold">[Чернетка]</span>
-		{% endif %}
+			{% if tour.is_active %}
+				<button type="submit" class="btn btn-primary btn-block rounded-xl text-base shadow-lg shadow-primary/20">
+					Перейти до бронювання
+				</button>
+			{% else %}
+				<span class="text-red-500 font-bold">[Чернетка]</span>
+			{% endif %}
 		</form>
 
 		<div class="pt-2 border-t border-base-200 text-xs text-base-content/60 space-y-2">
@@ -559,5 +573,23 @@
     captionEl.innerText = caption;
     modal.showModal();
   }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const selectElement = document.getElementById('tour-date-select');
+    const buttons = document.querySelectorAll('.select-date-btn');
+
+    buttons.forEach(button => {
+        button.addEventListener('click', function () {
+            const dateId = this.getAttribute('data-date-id');
+            
+            selectElement.value = dateId;
+            
+            selectElement.dispatchEvent(new Event('change'));
+
+            const form = document.getElementById('booking-form');
+            form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    });
+});
 </script>
 {% endblock %}

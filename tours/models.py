@@ -258,3 +258,28 @@ class TourReview(models.Model):
 
     def __str__(self):
             return f"Відгук від {self.user.name} до туру {self.tour.title}"
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="favorites",
+        verbose_name="Користувач"
+    )
+    tour = models.ForeignKey(
+        "Tour",
+        on_delete=models.CASCADE,
+        related_name="favorited_by",
+        verbose_name="Тур"
+    )
+    created_at = models.DateTimeField("Дата додавання", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Обраний тур"
+        verbose_name_plural = "Обрані тури"
+        unique_together = ("user", "tour")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user} -> {self.tour.title}"

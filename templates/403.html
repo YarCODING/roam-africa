@@ -1,0 +1,41 @@
+{% extends 'layouts/blank.html' %}
+
+{% block content %}
+<div class="min-h-[calc(100vh-100px)] bg-base-100 flex items-center justify-center py-12">
+    <div class="hero-content flex-col lg:flex-row-reverse gap-12 max-w-5xl px-4">
+        
+        <div class="w-full lg:w-1/2 relative">
+            <div class="rounded-xl overflow-hidden aspect-video lg:aspect-square">
+                <img src="https://images.unsplash.com/photo-1547496614-99b29879c916" 
+                     alt="Доступ заборонено" 
+                     class="w-full h-full object-cover opacity-90" />
+            </div>
+        </div>
+
+        <div class="w-full lg:w-1/2 text-center lg:text-left">
+            <div class="relative">
+                <span class="text-8xl sm:text-9xl font-black text-warning/25 select-none block leading-none">
+                    403
+                </span>
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4 relative z-10">
+                    Цей шлях закритий для перетину
+                </h1>
+            </div>
+            
+            <p class="text-base-content/70 mb-8 text-base sm:text-lg">
+                У вас немає прав доступу до цієї сторінки. Можливо, для цього потрібно увійти в систему під обліковим записом менеджера або адміністратора.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                <a href="/" class="btn btn-primary gap-2 shadow-lg">
+                    <i class="fa-solid fa-house"></i> На головну
+                </a>
+                <a href="{% url 'account_login' %}" class="btn btn-outline gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i> Увійти в систему
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

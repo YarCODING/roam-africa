@@ -9,6 +9,8 @@ class CustomUser(AbstractUser):
     info = models.TextField("Інфо", null=True, blank=True)
     stripe_customer_id = models.CharField("Stripe Customer ID", max_length=255, blank=True, null=True)
     telegram_chat_id = models.BigIntegerField("Telegram Chat ID", null=True, blank=True, unique=True)
+    
+    is_subscribed_to_newsletter = models.BooleanField("Підписан на розсилку", default=True)
 
     history = HistoricalRecords()
 

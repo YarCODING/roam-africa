@@ -1,76 +1,71 @@
 {% load static hijack %}
 
-<header class="sticky top-2 z-40 px-4 md:px-8">
-    <div class="navbar bg-base-200 text-base-content rounded-full shadow-md px-6 min-h-16">
-        
-        <div class="navbar-start">
-            <a class="flex items-center gap-2" href="{% url 'home' %}">
-                <img class="h-8" src="{% static 'images/logo.png' %}" alt="Logo"/>
-                <div class="flex flex-col">
-                    <span class="text-lg font-bold font-heading tracking-tight leading-tight">Roam Africa</span>
-                    <span class="text-md font-semibold text-primary leading-[0.9]"> Expeditions </span>
-                </div>
-            </a>
-        </div>
+<div class="drawer drawer-end">
+    <input id="mobile-drawer" type="checkbox" class="drawer-toggle" />
+    
+    <header class="fixed md:top-2 left-0 right-0 md:left-8 md:right-8 z-50 sm:px-4 md:px-0">
+        <div class="navbar bg-base-200/85 backdrop-blur-xl text-base-content rounded-none md:rounded-full shadow-lg px-4 sm:px-6 min-h-16 border border-base-300/20">
+            
+            <div class="navbar-start">
+                <a class="flex items-center gap-2" href="{% url 'home' %}">
+                    <img class="h-8" src="{% static 'images/logo.png' %}" alt="Logo"/>
+                    <div class="flex flex-col">
+                        <span class="text-lg font-bold font-heading tracking-tight leading-tight">Roam Africa</span>
+                        <span class="text-md font-semibold text-primary leading-[0.9]"> Expeditions </span>
+                    </div>
+                </a>
+            </div>
 
-        <div class="navbar-center hidden lg:flex">
-            <ul class="menu menu-horizontal px-1 gap-2 font-medium uppercase tracking-wider text-xs">  
-                <li>
-                    <details>
-                        <summary class="hover:text-primary transition-colors">Напрямки</summary>
-                        <ul class="p-2 bg-base-100 rounded-box w-48 shadow-lg z-50 border border-base-300 capitalize font-normal text-sm">
-                            {% for country in header_countries %}
-                                <li>
-                                    <a href="{% url 'country_detail' country.slug %}">
-                                        {{ country.name }}
-                                    </a>
-                                </li>
-                            {% empty %}
-                                <li><span class="text-base-content/50">Немає доступних країн</span></li>
-                            {% endfor %}
-                        </ul>
-                    </details>
-                </li>
+            <div class="navbar-center hidden lg:flex">
+                <ul class="menu menu-horizontal px-1 gap-2 font-medium uppercase tracking-wider text-xs">  
+                    <li>
+                        <details>
+                            <summary class="hover:text-primary transition-colors">Напрямки</summary>
+                            <ul class="p-2 bg-base-100 rounded-box w-48 shadow-lg z-50 border border-base-300 capitalize font-normal text-sm">
+                                {% for country in header_countries %}
+                                    <li>
+                                        <a href="{% url 'country_detail' country.slug %}">
+                                            {{ country.name }}
+                                        </a>
+                                    </li>
+                                {% empty %}
+                                    <li><span class="text-base-content/50">Немає доступних країн</span></li>
+                                {% endfor %}
+                            </ul>
+                        </details>
+                    </li>
 
-                <li><a href="{% url 'tour_list' %}" class="hover:text-primary transition-colors">Тури</a></li>
-                <li><a href="{% url 'review_list' %}" class="hover:text-primary transition-colors">Відгуки</a></li>
-                <li><a href="{% url 'about' %}" class="hover:text-primary transition-colors">Про нас</a></li>
-                <li><a href="#" class="hover:text-primary transition-colors">Блог</a></li>
-            </ul>
-        </div>
+                    <li><a href="{% url 'tour_list' %}" class="hover:text-primary transition-colors">Тури</a></li>
+                    <li><a href="{% url 'review_list' %}" class="hover:text-primary transition-colors">Відгуки</a></li>
+                    <li><a href="{% url 'about' %}" class="hover:text-primary transition-colors">Про нас</a></li>
+                    <li><a href="#" class="hover:text-primary transition-colors">Блог</a></li>
+                </ul>
+            </div>
 
+            <div class="navbar-end gap-2">
+                
+                <label class="toggle text-base-content">
+                    <input type="checkbox" id="theme-toggle" />
+                    <i class="fa-solid fa-sun text-[10px] w-3.5 h-3.5 flex items-center justify-center"></i>
+                    <i class="fa-solid fa-moon text-[10px] w-3.5 h-3.5 flex items-center justify-center"></i>
+                </label>
 
-        <div class="navbar-end gap-2">
-            <label class="toggle text-base-content">
-                <input type="checkbox" id="theme-toggle" />
-                <i class="fa-solid fa-sun text-[10px] w-3.5 h-3.5 flex items-center justify-center"></i>
-                <i class="fa-solid fa-moon text-[10px] w-3.5 h-3.5 flex items-center justify-center"></i>
-            </label>
-
-            {% with current_curr=request.session.currency|default:'EUR' %}
-                <div class="inline-flex rounded-xl overflow-hidden border border-base-300/20 bg-base-300 text-base-content p-0.5 shadow-sm">
-                    <!-- EUR -->
+                {% with current_curr=request.session.currency|default:'EUR' %}
+                <div class="join hidden sm:inline-flex">
                     <a href="{% url 'set_currency' %}?currency=EUR" 
-                    class="flex items-center justify-center w-8 h-8 text-xl font-bold transition-colors duration-200 
-                            {% if current_curr == 'EUR' %}bg-primary text-primary-content{% else %}text-base-content hover:bg-black/5{% endif %}">
+                    class="join-item btn btn-sm text-xl font-bold {% if current_curr == 'EUR' %}btn-primary{% else %}btn-ghost bg-base-200{% endif %}">
                         €
                     </a>
-
-                    <!-- USD -->
                     <a href="{% url 'set_currency' %}?currency=USD" 
-                    class="flex items-center justify-center w-8 h-8 text-xl font-bold transition-colors duration-200 
-                            {% if current_curr == 'USD' %}bg-primary text-primary-content{% else %}text-base-content hover:bg-black/5{% endif %}">
+                    class="join-item btn btn-sm text-xl font-bold {% if current_curr == 'USD' %}btn-primary{% else %}btn-ghost bg-base-200{% endif %}">
                         $
                     </a>
-
-                    <!-- UAH -->
                     <a href="{% url 'set_currency' %}?currency=UAH" 
-                    class="flex items-center justify-center w-8 h-8 text-xl font-bold transition-colors duration-200 
-                            {% if current_curr == 'UAH' %}bg-primary text-primary-content{% else %}text-base-content hover:bg-black/5{% endif %}">
+                    class="join-item btn btn-sm text-xl font-bold {% if current_curr == 'UAH' %}btn-primary{% else %}btn-ghost bg-base-200{% endif %}">
                         ₴
                     </a>
                 </div>
-            {% endwith %}
+                {% endwith %}
 
                 {% if request.user.is_hijacked %}
                     <form action="{% url 'hijack:release' %}" method="post">
@@ -81,40 +76,131 @@
                     </form>
                 {% endif %}
 
-
                 {% if request.user.is_authenticated %}
-                    <details class="dropdown dropdown-end">
+                    <details class="dropdown dropdown-end hidden sm:inline-block">
                         <summary class="btn btn-outline rounded-full px-5 min-h-10 h-10 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider border-base-content/30 hover:bg-base-content hover:text-base-100 transition-all cursor-pointer list-none">
                             <img class="h-6 w-6 rounded-full object-cover" src="{{ user.avatar }}" alt="Avatar"/>
                             <div class="flex flex-col items-start">
                                 <span>{{ user.name }}</span>
                                 {% if user.is_staff %}
-                                <span class="badge badge-xs text-[10px] badge-primary font-bold">Адмін</span>
+                                    <span class="badge badge-xs text-[10px] badge-primary font-bold">Адмін</span>
                                 {% endif %}
                             </div>
-                            
                             <i class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300"></i>
                         </summary>
-                        
                         <ul class="dropdown-content menu menu-sm bg-base-100 text-base-content shadow-lg rounded-2xl w-52 p-2 z-50 border border-base-300 mt-2">
                             {% if user.is_staff %}
-                            <li><a href="{% url 'admin:index' %}" class="bg-primary/80 text-primary-content hover:bg-primary"><i class="fa-solid fa-database"></i> Адміністрування </a></li>
+                                <li><a href="{% url 'admin:index' %}" class="bg-primary/80 text-primary-content hover:bg-primary"><i class="fa-solid fa-database"></i> Адміністрування </a></li>
                             {% endif %}
                             <li><a href="{% url 'profile' %}"><i class="fa-regular fa-user"></i> Мій профіль </a></li>
                             <li><a href="{% url 'profile-edit' %}"><i class="fa-solid fa-pen-to-square"></i> Редагувати профіль </a></li>
                             <li><a href="{% url 'bookings_list' %}"><i class="fa-solid fa-book"></i> Мої бронювання </a></li>
+                            <li><a href="{% url 'compare_favorites' %}"><i class="fa-solid fa-heart"></i> Обрані </a></li>
                             <li><a href="{% url 'profile-settings' %}"><i class="fa-solid fa-gear"></i> Налаштування </a></li>
                             <div class="divider my-1"></div>
                             <li><a href="{% url 'account_logout' %}" class="text-error"><i class="fa-solid fa-right-from-bracket"></i> Вийти</a></li>
                         </ul>
                     </details>
                 {% else %}
-                <a href="{% url 'account_login' %}" class="btn btn-ghost btn-sm rounded-full uppercase text-xs">Увійти</a>
-                <a href="{% url 'account_signup' %}?next={% url 'profile-onboarding' %}" class="btn btn-outline btn-primary rounded-full px-6 min-h-10 h-10 text-xs uppercase tracking-wider">
-                    Реєстрація
-                </a>
-            {% endif %}
+                    <div class="hidden sm:flex items-center gap-2">
+                        <a href="{% url 'account_login' %}" class="btn btn-ghost btn-sm rounded-full uppercase text-xs">Увійти</a>
+                        <a href="{% url 'account_signup' %}?next={% url 'profile-onboarding' %}" class="btn btn-outline btn-primary rounded-full px-6 min-h-10 h-10 text-xs uppercase tracking-wider">
+                            Реєстрація
+                        </a>
+                    </div>
+                {% endif %}
+
+                <label for="mobile-drawer" class="btn btn-ghost btn-circle lg:hidden" aria-label="Open menu">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </label>
+
+            </div>
         </div>
+    </header>
+
+    <div class="drawer-side z-50">
+        <label for="mobile-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
         
+        <div class="menu p-6 w-80 min-h-full bg-base-100 text-base-content flex flex-col justify-between">
+            <div class="flex flex-col gap-6">
+                <div class="flex items-center justify-between pb-4 border-b border-base-200">
+                    <a class="flex items-center gap-2" href="{% url 'home' %}">
+                        <img class="h-7" src="{% static 'images/logo.png' %}" alt="Logo"/>
+                        <span class="text-base font-bold font-heading">Roam Africa</span>
+                    </a>
+                    <label for="mobile-drawer" class="btn btn-sm btn-circle btn-ghost">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </label>
+                </div>
+
+                {% if request.user.is_authenticated %}
+                    <div class="flex items-center gap-3 p-3 bg-base-200 rounded-2xl">
+                        <img class="h-10 w-10 rounded-full object-cover" src="{{ user.avatar }}" alt="Avatar"/>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-sm">{{ user.name }}</span>
+                            {% if user.is_staff %}
+                                <span class="badge badge-xs badge-primary font-bold">Адмін</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <ul class="space-y-1 font-medium">
+                    <li>
+                        <details>
+                            <summary class="text-base py-3"><i class="fa-solid fa-earth-africa w-5"></i> Напрямки</summary>
+                            <ul class="pl-4 mt-2 space-y-1">
+                                {% for country in header_countries %}
+                                    <li><a href="{% url 'country_detail' country.slug %}">{{ country.name }}</a></li>
+                                {% empty %}
+                                    <li><span class="text-base-content/50">Немає доступних країн</span></li>
+                                {% endfor %}
+                            </ul>
+                        </details>
+                    </li>
+                    <li><a href="{% url 'tour_list' %}" class="text-base py-3"><i class="fa-solid fa-compass w-5"></i> Тури</a></li>
+                    <li><a href="{% url 'review_list' %}" class="text-base py-3"><i class="fa-solid fa-star w-5"></i> Відгуки</a></li>
+                    <li><a href="{% url 'about' %}" class="text-base py-3"><i class="fa-solid fa-circle-info w-5"></i> Про нас</a></li>
+                    <li><a href="#" class="text-base py-3"><i class="fa-solid fa-newspaper w-5"></i> Блог</a></li>
+                    
+                    {% if request.user.is_authenticated %}
+                        <div class="divider my-2"></div>
+                        {% if user.is_staff %}
+                            <li><a href="{% url 'admin:index' %}" class="text-primary font-semibold"><i class="fa-solid fa-database w-5"></i> Адміністрування</a></li>
+                        {% endif %}
+                        <li><a href="{% url 'profile' %}"><i class="fa-regular fa-user w-5"></i> Мій профіль</a></li>
+                        <li><a href="{% url 'profile-edit' %}"><i class="fa-solid fa-pen-to-square w-5"></i> Редагувати профіль</a></li>
+                        <li><a href="{% url 'bookings_list' %}"><i class="fa-solid fa-book w-5"></i> Мої бронювання</a></li>
+                        <li><a href="{% url 'compare_favorites' %}"><i class="fa-solid fa-heart"></i> Обрані </a></li>
+                        <li><a href="{% url 'profile-settings' %}"><i class="fa-solid fa-gear w-5"></i> Налаштування</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div class="flex flex-col gap-4 pt-4 border-t border-base-200">
+                <div class="flex flex-col gap-2">
+                    <span class="text-xs font-semibold text-base-content/60 uppercase">Валюта</span>
+                    {% with current_curr=request.session.currency|default:'EUR' %}
+                        <div class="grid grid-cols-3 gap-1 bg-base-200 p-1 rounded-xl text-center">
+                            <a href="{% url 'set_currency' %}?currency=EUR" class="py-1.5 rounded-lg text-sm font-bold {% if current_curr == 'EUR' %}bg-primary text-primary-content{% endif %}">€ EUR</a>
+                            <a href="{% url 'set_currency' %}?currency=USD" class="py-1.5 rounded-lg text-sm font-bold {% if current_curr == 'USD' %}bg-primary text-primary-content{% endif %}">$ USD</a>
+                            <a href="{% url 'set_currency' %}?currency=UAH" class="py-1.5 rounded-lg text-sm font-bold {% if current_curr == 'UAH' %}bg-primary text-primary-content{% endif %}">₴ UAH</a>
+                        </div>
+                    {% endwith %}
+                </div>
+
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'account_logout' %}" class="btn btn-outline btn-error w-full">
+                        <i class="fa-solid fa-right-from-bracket"></i> Вийти
+                    </a>
+                {% else %}
+                    <div class="grid grid-cols-2 gap-2">
+                        <a href="{% url 'account_login' %}" class="btn btn-ghost w-full border border-base-300">Увійти</a>
+                        <a href="{% url 'account_signup' %}?next={% url 'profile-onboarding' %}" class="btn btn-primary w-full">Реєстрація</a>
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
     </div>
-</header>
+</div>

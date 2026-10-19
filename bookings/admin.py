@@ -119,3 +119,17 @@ class BookingAdmin(ModelAdmin, ImportExportModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return is_senior_staff(request.user)
+
+    def save_model(self, request, obj, form, change):
+        if change:
+            old_obj = Booking.objects.get(pk=obj.pk)
+            new_status = obj.status
+            
+            obj.status = old_obj.status 
+            
+            if obj.status != new_status:
+                from .services import change_booking_status
+                change_booking_status(obj, new_status)
+                return
+
+        super().save_model(request, obj, form, change)

@@ -84,7 +84,7 @@ def bookings_list(request):
     )
 
     for booking in bookings:
-        tour = getattr(getattr(booking, 'tour_date', None), 'tour', None)
+        tour = booking.tour_date.tour
         booking.has_review = tour.id in reviewed_tour_ids if tour else False
 
     context = {
@@ -145,7 +145,7 @@ def create_stripe_checkout_session(request, booking_id):
         },
     }
 
-    if getattr(user, 'stripe_customer_id', None):
+    if user.stripe_customer_id:
         session_kwargs['customer'] = user.stripe_customer_id
     else:
         session_kwargs['customer_email'] = user.email
@@ -196,7 +196,7 @@ def stripe_webhook(request):
         if user_id and stripe_customer_id:
             try:
                 user = User.objects.get(id=int(user_id))
-                if not getattr(user, 'stripe_customer_id', None):
+                if not user.stripe_customer_id:
                     user.stripe_customer_id = stripe_customer_id
                     user.save()
             except (User.DoesNotExist, ValueError):

@@ -1,6 +1,10 @@
 {% extends 'layouts/blank.html' %}
 {% load currency_tags %}
 
+{% block extra_head %}
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+{% endblock %}
+
 {% block content %}
 <div class="min-h-screen py-10 px-4 md:px-8 max-w-7xl mx-auto">
 
@@ -143,6 +147,13 @@
             </label>
             <textarea name="comment" class="textarea textarea-bordered w-full rounded-2xl focus:textarea-primary" rows="3" placeholder="Особливості харчування, питання до організаторів тощо...">{{ form.comment.value|default:'' }}</textarea>
           </div>
+        </div>
+
+        <div class="my-4">
+          {{ form.turnstile }}
+          {% if form.turnstile.errors %}
+            <span class="text-error text-xs mt-1 block">{{ form.turnstile.errors.0 }}</span>
+          {% endif %}
         </div>
 
         <div class="pt-2">

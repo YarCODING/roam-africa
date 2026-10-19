@@ -3,8 +3,11 @@ from .models import Booking
 from tours.models import TourDate
 from datetime import timedelta
 from django.utils import timezone
+from turnstile.fields import TurnstileField
 
 class BookingForm(forms.ModelForm):
+    turnstile = TurnstileField(label="")
+
     class Meta:
         model = Booking
         fields = [
@@ -13,7 +16,8 @@ class BookingForm(forms.ModelForm):
             'customer_phone', 
             'customer_email', 
             'persons_count', 
-            'comment'
+            'comment',
+            'turnstile',
         ]
         widgets = {
             'customer_name': forms.TextInput(attrs={'class': 'input input-bordered w-full rounded-xl'}),

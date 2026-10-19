@@ -47,7 +47,7 @@ class BookingAutoStatusTestCase(TestCase):
         booking = Booking.objects.create(
             tour_date=tour_date,
             customer=self.user,
-            customer_name="Иван",
+            customer_name="Олександр",
             customer_phone="+123456789",
             customer_email="test@example.com",
             status=Booking.Status.NEW
@@ -71,7 +71,7 @@ class BookingAutoStatusTestCase(TestCase):
         booking = Booking.objects.create(
             tour_date=tour_date,
             customer=self.user,
-            customer_name="Иван",
+            customer_name="Олександр",
             status=Booking.Status.PAID
         )
 
@@ -92,7 +92,7 @@ class BookingAutoStatusTestCase(TestCase):
         booking = Booking.objects.create(
             tour_date=tour_date,
             customer=self.user,
-            customer_name="Иван",
+            customer_name="Олександр",
             status=Booking.Status.PAID
         )
 

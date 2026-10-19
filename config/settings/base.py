@@ -2,6 +2,7 @@ import environ, os
 from pathlib import Path
 from django.templatetags.static import static
 from django.urls import reverse_lazy
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -36,10 +37,13 @@ INSTALLED_APPS = [
     'tours',
     'bookings',
     'bot',
+    'newsletter',
 
     # 3rd party
     'allauth',
     'allauth.account',
+    "django_htmx",
+    "admin_honeypot",
     'django_countries',
     'import_export',
     'simple_history',
@@ -47,6 +51,7 @@ INSTALLED_APPS = [
     'hijack.contrib.admin',
     'djmoney',
     'djmoney.contrib.exchange',
+    'turnstile',
 
     'django_cleanup.apps.CleanupConfig',
 ]
@@ -56,6 +61,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    "django_htmx.middleware.HtmxMiddleware",
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -91,8 +97,6 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
-
-AUTH_USER_MODEL = 'users.CustomUser'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -142,10 +146,15 @@ AUTH_USER_MODEL = 'users.CustomUser'
 ACCOUNT_LOGIN_METHODS = {'email', 'username'}
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
 
+ACCOUNT_FORMS = {
+    'signup': 'users.forms.CustomSignupForm',
+}
+ACCOUNT_ADAPTER = 'users.adapters.CustomAccountAdapter'
 
-STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
-STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
-STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
+
+STRIPE_PUBLISHABLE_KEY = env('STRIPE_PUBLISHABLE_KEY')
+STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
+STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET')
 
 
 def get_navigation(request):
@@ -196,6 +205,11 @@ def get_navigation(request):
                     "icon": "book_2",
                     "link": reverse_lazy("admin:bookings_booking_changelist"),
                 },
+                {
+                    "title": "Розсилки",
+                    "icon": "outgoing_mail",
+                    "link": reverse_lazy("admin:newsletter_newsletter_changelist"),
+                },
             ],
         },
     ]
@@ -214,6 +228,11 @@ def get_navigation(request):
                     "link": reverse_lazy("admin:users_customuser_changelist")
                 },
                 {
+                    "title": "Пошти", 
+                    "icon": "mail", 
+                    "link": reverse_lazy("admin:account_emailaddress_changelist")
+                },
+                {
                     "title": "Групи прав", 
                     "icon": "security", 
                     "link": reverse_lazy("admin:auth_group_changelist")
@@ -223,6 +242,11 @@ def get_navigation(request):
                     "icon": "history", 
                     "link": reverse_lazy("admin:admin_logentry_changelist")
                 },
+                {
+                    "title": "Журнал загроз",
+                    "icon": "admin_panel_settings",
+                    "link": reverse_lazy("admin:admin_honeypot_loginattempt_changelist"),
+                }
             ],
         })
         
@@ -243,7 +267,7 @@ UNFOLD = {
         {
             "rel": "icon",
             "sizes": "32x32",
-            "type": "image/svg+xml",
+            "type": "image/png",
             "href": lambda request: static("images/favicon.png"),
         },
     ],
@@ -280,6 +304,8 @@ UNFOLD = {
         "show_all_applications": False,
         "navigation": get_navigation,
     },
+
+    "SITE_DROPDOWN": []
 }
 
 
@@ -294,6 +320,25 @@ HIJACK_PERMISSION_CHECK = "config.settings.base.custom_hijack_check"
 
 AUTO_CONVERT_MONEY = True
 EXCHANGE_BACKEND = 'djmoney.contrib.exchange.backends.OpenExchangeRatesBackend'
-OPEN_EXCHANGE_RATES_APP_ID = 'affa1ca0af1648bf89d99825f8affd4e'
+OPEN_EXCHANGE_RATES_APP_ID = env('OPEN_EXCHANGE_RATES_APP_ID')
 DEFAULT_CURRENCY = 'EUR'
 CURRENCIES = ['EUR', 'USD', 'UAH']
+
+ACCOUNT_RATE_LIMITS = {
+    "login": "20/m/ip",
+    "login_failed": "5/m/ip,5/5m/key"
+}
+
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_RESULT_EXPIRES = 86400
+
+CELERY_BEAT_SCHEDULE = {
+    'update-booking-statuses-every-day': {
+        'task': 'bookings.tasks.update_booking_statuses',
+        'schedule': crontab(hour=0, minute=0),
+    },
+    'check-trip-reminders-every-day': {
+        'task': 'bookings.tasks.send_trip_reminders',
+        'schedule': crontab(hour=9, minute=0),
+    },
+}

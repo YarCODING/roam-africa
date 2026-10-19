@@ -6,7 +6,8 @@ from users.views import profile_view
 from bookings.views import stripe_webhook
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('lenny-where-are-you-1899/', admin.site.urls),
+    path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
     path('accounts/', include('allauth.urls')),
     path('hijack/', include('hijack.urls')),
     path("", include("core.urls")),
@@ -16,6 +17,7 @@ urlpatterns = [
     path('webhooks/stripe/', stripe_webhook, name='stripe_webhook'),
     path('@<username>/', profile_view, name="profile"),
 ]
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

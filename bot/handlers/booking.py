@@ -248,7 +248,7 @@ async def process_confirm_booking(callback: CallbackQuery):
     @sync_to_async
     def update_booking():
         try:
-            booking = Booking.base_objects.select_related('tour_date__tour', 'customer').get(id=booking_id)
+            booking = Booking.objects.select_related('tour_date__tour', 'customer').get(id=booking_id)
             
             if booking.status == Booking.Status.CONFIRMED:
                 return booking, False
@@ -285,7 +285,7 @@ async def process_cancel_booking(callback: CallbackQuery):
     @sync_to_async
     def cancel_booking():
         try:
-            booking = Booking.base_objects.select_related('tour_date__tour', 'customer').get(id=booking_id)
+            booking = Booking.objects.select_related('tour_date__tour', 'customer').get(id=booking_id)
             
             if booking.status == Booking.Status.CANCELED:
                 return booking, False

@@ -1,0 +1,147 @@
+{% extends 'layouts/blank.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 class="text-2xl sm:text-3xl font-bold flex items-center gap-3">
+            <i class="fa-solid fa-scale-balanced text-primary"></i> Порівняння обраних турів
+        </h1>
+        <a href="{% url 'tour_list' %}" class="btn btn-outline btn-sm">
+            <i class="fa-solid fa-arrow-left mr-2"></i> Повернутися до пошуку
+        </a>
+    </div>
+
+    {% if not tours %}
+        <div class="alert alert-info shadow-lg">
+            <div>
+                <i class="fa-solid fa-circle-info text-xl"></i>
+                <span>Ваш список обраних турів порожній. Додайте тури для порівняння!</span>
+            </div>
+        </div>
+    {% else %}
+        <div class="hidden md:block overflow-x-auto bg-base-100 rounded-box shadow-xl border border-base-200">
+            <table class="table w-full">
+                <thead>
+                    <tr class="bg-base-200 text-base-content text-center">
+                        <th class="text-left font-bold text-base">Тур</th>
+                        <th><i class="fa-solid fa-globe mr-1 text-primary"></i> Країна</th>
+                        <th><i class="fa-solid fa-tags mr-1 text-primary"></i> Ціна від</th>
+                        <th><i class="fa-solid fa-calendar-days mr-1 text-primary"></i> Тривалість</th>
+                        <th><i class="fa-solid fa-person-hiking mr-1 text-primary"></i> Складність</th>
+                        <th><i class="fa-solid fa-users mr-1 text-primary"></i> Група</th>
+                        <th>Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tour in tours %}
+                    <tr class="hover text-center">
+                        <td class="text-left">
+                            <div class="flex items-center gap-3">
+                                {% if tour.cover_image %}
+                                    <img src="{{ tour.cover_image.url }}" alt="{{ tour.title }}" class="w-16 h-12 object-cover rounded-lg shadow shrink-0">
+                                {% else %}
+                                    <div class="w-16 h-12 bg-base-300 rounded-lg flex items-center justify-center text-xs text-base-content/40 shrink-0">Н/Д</div>
+                                {% endif %}
+                                <a href="{% url 'tour_detail' tour.slug %}" class="font-bold hover:text-primary transition line-clamp-2">{{ tour.title }}</a>
+                            </div>
+                        </td>
+                        <td>{{ tour.country.name }}</td>
+                        <td><span class="badge badge-success font-bold">{{ tour.price_from }}</span></td>
+                        <td>{{ tour.duration_days }} днів</td>
+                        <td>
+                            <span class="badge badge-sm 
+                                {% if tour.difficulty == 'easy' %}badge-info
+                                {% elif tour.difficulty == 'medium' %}badge-warning
+                                {% elif tour.difficulty == 'hard' %}badge-error
+                                {% else %}badge-neutral{% endif %}">
+                                {{ tour.get_difficulty_display }}
+                            </span>
+                        </td>
+                        <td>до {{ tour.group_size_max }} осіб</td>
+                        <td>
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="{% url 'tour_detail' tour.slug %}" class="btn btn-primary btn-xs" title="Переглянути тур">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                                <form action="{% url 'toggle_favorite' tour.slug %}" method="post" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-error btn-outline btn-xs" title="Видалити з обраного">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 md:hidden">
+            {% for tour in tours %}
+            <div class="card bg-base-100 shadow-xl border border-base-200">
+                <figure class="relative h-48">
+                    {% if tour.cover_image %}
+                        <img src="{{ tour.cover_image.url }}" alt="{{ tour.title }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-full bg-base-300 flex items-center justify-center text-base-content/40">Немає обкладинки</div>
+                    {% endif %}
+                    <form action="{% url 'toggle_favorite' tour.slug %}" method="post" class="absolute top-2 right-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-circle btn-sm bg-base-100/80 hover:bg-base-100 text-error border-none shadow">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </form>
+                </figure>
+                <div class="card-body p-4">
+                    <h2 class="card-title text-base">
+                        <a href="{% url 'tour_detail' tour.slug %}" class="hover:text-primary transition">{{ tour.title }}</a>
+                    </h2>
+                    
+                    <div class="divider my-1"></div>
+
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div class="flex items-center gap-2 text-base-content/70">
+                            <i class="fa-solid fa-globe text-primary"></i> Країна:
+                        </div>
+                        <div class="font-medium text-right">{{ tour.country.name }}</div>
+
+                        <div class="flex items-center gap-2 text-base-content/70">
+                            <i class="fa-solid fa-tags text-primary"></i> Ціна від:
+                        </div>
+                        <div class="text-right"><span class="badge badge-success font-bold">{{ tour.price_from }}</span></div>
+
+                        <div class="flex items-center gap-2 text-base-content/70">
+                            <i class="fa-solid fa-calendar-days text-primary"></i> Тривалість:
+                        </div>
+                        <div class="font-medium text-right">{{ tour.duration_days }} днів</div>
+
+                        <div class="flex items-center gap-2 text-base-content/70">
+                            <i class="fa-solid fa-person-hiking text-primary"></i> Складність:
+                        </div>
+                        <div class="text-right">
+                            <span class="badge badge-xs 
+                                {% if tour.difficulty == 'easy' %}badge-info
+                                {% elif tour.difficulty == 'medium' %}badge-warning
+                                {% elif tour.difficulty == 'hard' %}badge-error
+                                {% else %}badge-neutral{% endif %}">
+                                {{ tour.get_difficulty_display }}
+                            </span>
+                        </div>
+
+                        <div class="flex items-center gap-2 text-base-content/70">
+                            <i class="fa-solid fa-users text-primary"></i> Група:
+                        </div>
+                        <div class="font-medium text-right">до {{ tour.group_size_max }} осіб</div>
+                    </div>
+
+                    <div class="card-actions justify-end mt-4">
+                        <a href="{% url 'tour_detail' tour.slug %}" class="btn btn-primary btn-sm w-full">Переглянути тур</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
