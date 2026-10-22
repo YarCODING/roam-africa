@@ -3,6 +3,7 @@ import tempfile
 import requests
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.conf import settings
 
@@ -13,28 +14,48 @@ from .models import Newsletter
 User = get_user_model()
 
 @shared_task(name='email_sender')
-def send_email_task(email, title, body, image_url=None):
+def send_email_task(email, title, body, image_url=None, unsubscribe_url='#'):
     try:
-        msg = EmailMessage(subject=title, body=body, to=[email])
+        context = {
+            'title': title,
+            'body': body,
+            'email': email,
+            'logo_url': f"{settings.BASE_URL}/static/images/logo.png",
+            'image_url_public': image_url,
+            'unsubscribe_url': unsubscribe_url,
+        }
+
+        html_content = render_to_string('emails/letter.html', context)
+
+        msg = EmailMessage(
+            subject=title,
+            body=html_content,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[email]
+        )
         msg.content_subtype = 'html'
 
-        if image_url:
-            response = requests.get(image_url, timeout=10)
-            if response.status_code == 200:
-                with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(image_url)[-1]) as temp_file:
-                    temp_file.write(response.content)
-                    temp_file_path = temp_file.name
-                
-                msg.attach_file(temp_file_path)
-                msg.send()
-                
-                os.unlink(temp_file_path)
-            else:
-                msg.send()
-        else:
-            msg.send()
+        if image_url and image_url.startswith('http'):
+            try:
+                response = requests.get(image_url, timeout=10)
+                if response.status_code == 200:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(image_url)[-1]) as temp_file:
+                        temp_file.write(response.content)
+                        temp_file_path = temp_file.name
+                    
+                    msg.attach_file(temp_file_path)
+                    try:
+                        msg.send()
+                    finally:
+                        if os.path.exists(temp_file_path):
+                            os.unlink(temp_file_path)
+                    return f'Лист успішно надіслано на {email}'
+            except Exception:
+                pass
 
+        msg.send()
         return f'Лист успішно надіслано на {email}'
+        
     except Exception as e:
         raise Exception(f'Помилка відправки email на {email}: {str(e)}')
 

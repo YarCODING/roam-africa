@@ -20,8 +20,6 @@ DATABASES = {
     }
 }
 
-MEDIA_ROOT = BASE_DIR / 'media'
-
 CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 

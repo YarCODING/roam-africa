@@ -137,6 +137,7 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -334,11 +335,11 @@ CELERY_RESULT_EXPIRES = 86400
 
 CELERY_BEAT_SCHEDULE = {
     'update-booking-statuses-every-day': {
-        'task': 'bookings.tasks.update_booking_statuses',
+        'task': 'update_booking_statuses',
         'schedule': crontab(hour=0, minute=0),
     },
     'check-trip-reminders-every-day': {
-        'task': 'bookings.tasks.send_trip_reminders',
+        'task': 'send_trip_reminders',
         'schedule': crontab(hour=9, minute=0),
     },
 }
