@@ -23,19 +23,21 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 TURNSTILE_SITEKEY = env('TURNSTILE_SITEKEY')
 TURNSTILE_SECRET = env('TURNSTILE_SECRET')
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
-        'OPTIONS': {
-            'host': 'smtp.gmail.com',
-            'port': 587,
-            'use_tls': True,
-            'username': env('EMAIL_USER'),
-            'password': env('EMAIL_PASSWORD'),
-            'timeout': 10,
-        },
-    },
-}
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# MAILERS = {
+#     'default': {
+#         'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
+#         'OPTIONS': {
+#             'host': 'smtp.gmail.com',
+#             'port': 587,
+#             'use_tls': True,
+#             'username': env('EMAIL_USER'),
+#             'password': env('EMAIL_PASSWORD'),
+#             'timeout': 10,
+#         },
+#     },
+# }
 
 DEFAULT_FROM_EMAIL = f"Roam Africa <{env('EMAIL_USER')}>"
 
