@@ -38,7 +38,7 @@
                     <li><a href="{% url 'tour_list' %}" class="hover:text-primary transition-colors">Тури</a></li>
                     <li><a href="{% url 'review_list' %}" class="hover:text-primary transition-colors">Відгуки</a></li>
                     <li><a href="{% url 'about' %}" class="hover:text-primary transition-colors">Про нас</a></li>
-                    <li><a href="#" class="hover:text-primary transition-colors">Блог</a></li>
+                    <li><a href="{% url 'blog_list' %}" class="hover:text-primary transition-colors">Блог</a></li>
                 </ul>
             </div>
 
@@ -81,7 +81,17 @@
                         <summary class="btn btn-outline rounded-full px-5 min-h-10 h-10 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider border-base-content/30 hover:bg-base-content hover:text-base-100 transition-all cursor-pointer list-none">
                             <img class="h-6 w-6 rounded-full object-cover" src="{{ user.avatar }}" alt="Avatar"/>
                             <div class="flex flex-col items-start">
-                                <span>{{ user.name }}</span>
+                                <div class="flex flex-row justify-baseline align-baseline items-baseline gap-1">
+                                    <span>{{ user.name }}</span>
+                                    {% if request.user.loyalty_tier %}
+                                        <div class="tooltip tooltip-bottom tooltip-end" data-tip="{{ request.user.loyalty_tier.name }} (знижка {{ request.user.loyalty_tier.discount_percent }}%)">
+                                            <span class="inline-flex items-center justify-center w-4 h-4 rounded-full shadow-sm cursor-pointer" 
+                                                style="background-color: {{ request.user.loyalty_tier.bg_color }}; color: {{ request.user.loyalty_tier.text_color }};">
+                                                <i class="fa-solid {{ request.user.loyalty_tier.icon_class }} text-[8px]"></i>
+                                            </span>
+                                        </div>
+                                    {% endif %}
+                                </div>
                                 {% if user.is_staff %}
                                     <span class="badge badge-xs text-[10px] badge-primary font-bold">Адмін</span>
                                 {% endif %}

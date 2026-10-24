@@ -14,6 +14,7 @@ urlpatterns = [
     path('profile/', include('users.urls')),
     path("", include('tours.urls')),
     path('bookings/', include('bookings.urls')),
+    path("blog/", include("blog.urls")),
     path('webhooks/stripe/', stripe_webhook, name='stripe_webhook'),
     path('@<username>/', profile_view, name="profile"),
 ]

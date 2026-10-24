@@ -1,0 +1,46 @@
+{% extends 'layouts/blank.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-extrabold tracking-tight text-base-content sm:text-5xl">Блог про Африканські Експедиції</h1>
+        <p class="mt-4 text-xl text-base-content/70">Натхнення, корисні поради та історії з наших подорожей дикою природою.</p>
+    </div>
+
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-10">
+        <div class="w-full md:w-80">
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-base-content/40">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input 
+                    type="text" 
+                    name="q" 
+                    value="{{ search_query }}"
+                    placeholder="Пошук статей..." 
+                    class="input input-bordered w-full pl-10 rounded-full focus:outline-none"
+                    hx-get="{% url 'blog_list' %}"
+                    hx-target="#articles-container"
+                    hx-trigger="keyup changed delay:300ms, search"
+                    hx-include="[name='category']"
+                >
+            </div>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-2">
+            <a href="{% url 'blog_list' %}" class="btn {% if not active_category %}btn-primary{% else %}btn-ghost border border-base-300{% endif %} rounded-full px-5">
+                Усі
+            </a>
+            {% for cat in categories %}
+                <a href="?category={{ cat.slug }}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn {% if active_category == cat.slug %}btn-primary{% else %}btn-ghost border border-base-300{% endif %} rounded-full px-5">
+                    {{ cat.name }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div id="articles-container">
+        {% include "blog/partials/article_list_content.html" %}
+    </div>
+</div>
+{% endblock %}

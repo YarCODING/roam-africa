@@ -30,7 +30,7 @@ def update_booking_statuses_task(self):
         change_booking_status(booking, Booking.Status.COMPLETED)
         completed_count += 1
 
-    return f"Statuses updated: {cancelled_count} canceled, {completed_count} completed."
+    return f"Оновлено статуси: {cancelled_count} скасовано, {completed_count} виконано."
 
 
 @shared_task(name='send_trip_reminders')

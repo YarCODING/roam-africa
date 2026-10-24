@@ -43,6 +43,10 @@ MAILERS = {
     },
 }
 
+ADMINS = [
+    ('Yaroslav', '20011aric@gmail.com'),
+]
+
 DEFAULT_FROM_EMAIL = "Roam Africa <noreply@roamafrica.com>"
 
 UNFOLD["SITE_DROPDOWN"] = [

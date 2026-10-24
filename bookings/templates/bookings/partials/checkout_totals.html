@@ -1,0 +1,68 @@
+<div id="booking-totals" class="space-y-6">
+    
+    <div class="space-y-4 bg-base-200/50 p-6 rounded-2xl border border-base-content/10">
+        <h3 class="text-lg font-bold">Знижки та бонуси</h3>
+
+        {% if request.user.loyalty_tier %}
+        <div class="flex justify-between items-center text-sm">
+            <span class="text-base-content/70">Рівень лояльності ({{ request.user.loyalty_tier.name }}):</span>
+            <span class="font-bold text-success">-{{ request.user.loyalty_tier.discount_percent }}%</span>
+        </div>
+        {% endif %}
+
+        <div class="form-control w-full">
+            <label class="label py-1">
+                <span class="label-text text-xs uppercase tracking-wider text-base-content/60 font-bold">Промокод</span>
+            </label>
+            <div class="flex gap-2">
+                <input type="text" name="promo_code" id="promoCodeInput" value="{{ applied_promo_code|default:'' }}" class="input input-bordered w-full rounded-xl" placeholder="Введіть промокод" />
+                
+                <button type="button" 
+                        hx-get="{% url 'checkout' tour.slug %}" 
+                        hx-target="#booking-totals" 
+                        hx-include="#tourDateSelect, #personsInput, #promoCodeInput"
+                        class="btn btn-neutral rounded-xl">
+                    Застосувати
+                </button>
+            </div>
+            {% if promo_error %}
+                <span class="text-xs mt-1 text-error">{{ promo_error }}</span>
+            {% elif promo_success %}
+                <span class="text-xs mt-1 text-success font-bold">{{ promo_success }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="space-y-4 px-2">
+        <div class="flex justify-between items-center text-base border-b border-base-content/10 pb-3">
+            <span class="text-base-content/60">Тривалість:</span>
+            <span class="font-bold">{{ tour.duration_days|default:"12" }} днів</span>
+        </div>
+
+        <div class="flex justify-between items-center text-base border-b border-base-content/10 pb-3">
+            <span class="text-base-content/60">Ціна за 1 особу:</span>
+            <span class="font-bold text-lg">{{ price_per_person|default:"—" }}</span>
+        </div>
+
+        {% if total_discount_percent > 0 %}
+            <div class="flex justify-between items-center text-sm text-success font-medium">
+                <span>Загальна знижка:</span>
+                <span>-{{ total_discount_percent }}%</span>
+            </div>
+        {% endif %}
+
+
+        <div class="pt-2 flex justify-between items-end">
+            <div>
+                <span class="text-xs uppercase font-bold tracking-wider text-base-content/50 block">Загальна вартість</span>
+                <span class="text-sm text-base-content/60 font-medium">{{ persons_count }} осіб × {{ price_per_person|default:"0" }}</span>
+            </div>
+            <div class="text-4xl font-black text-primary">
+                {{ total_price|default:"—" }}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<input type="hidden" name="promo_code" id="hiddenPromoCode" value="{{ applied_promo_code|default:'' }}" hx-swap-oob="true">

@@ -14,7 +14,7 @@ from .models import Newsletter
 User = get_user_model()
 
 @shared_task(name='email_sender')
-def send_email_task(email, title, body, image_url=None, unsubscribe_url='#'):
+def send_email_task(email, title, body, image_url=None, unsubscribe_url='#', attachment_data=None, attachment_name='ticket.pdf',):
     try:
         context = {
             'title': title,
@@ -34,6 +34,9 @@ def send_email_task(email, title, body, image_url=None, unsubscribe_url='#'):
             to=[email]
         )
         msg.content_subtype = 'html'
+
+        if attachment_data:
+            msg.attach(attachment_name, attachment_data, 'application/pdf')
 
         if image_url and image_url.startswith('http'):
             try:

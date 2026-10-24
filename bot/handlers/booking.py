@@ -12,6 +12,8 @@ from bookings.models import Booking
 from ..keyboards import get_tour_dates_inline_keyboard
 from ..services import get_active_tour_dates
 
+from bookings.services import change_booking_status
+
 router = Router()
 
 class BookingFlow(StatesGroup):
@@ -253,8 +255,7 @@ async def process_confirm_booking(callback: CallbackQuery):
             if booking.status == Booking.Status.CONFIRMED:
                 return booking, False
                 
-            booking.status = Booking.Status.CONFIRMED
-            booking.save()
+            change_booking_status(booking, Booking.Status.CONFIRMED)
             return booking, True
         except Booking.DoesNotExist:
             return None, False
@@ -290,8 +291,7 @@ async def process_cancel_booking(callback: CallbackQuery):
             if booking.status == Booking.Status.CANCELED:
                 return booking, False
                 
-            booking.status = Booking.Status.CANCELED
-            booking.save()
+            change_booking_status(booking, Booking.Status.CANCELED)
             return booking, True
         except Booking.DoesNotExist:
             return None, False

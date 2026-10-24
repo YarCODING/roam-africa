@@ -96,6 +96,7 @@
 
     <div class="lg:col-span-5 space-y-6">
       
+      <!-- БЛОК С УЧЕТОМ СКИДОК И ПРОМОКОДА -->
       <div class="bg-base-200/50 p-6 rounded-3xl border border-base-content/10 space-y-4">
         <h2 class="text-xs uppercase font-bold tracking-wider text-base-content/50">Підсумок оплати</h2>
         
@@ -108,10 +109,31 @@
             <span class="text-base-content/70">Учасників</span>
             <span class="font-semibold">× {{ booking.persons_count }}</span>
           </div>
+
+          {% if booking.original_price %}
+          <div class="flex justify-between text-base-content/60 pt-2 border-t border-base-content/5">
+            <span>Базова вартість:</span>
+            <span>{{ booking.original_price|convert:request }}</span>
+          </div>
+          {% endif %}
+
+          {% if booking.loyalty_discount_amount and booking.loyalty_discount_amount.amount > 0 %}
+          <div class="flex justify-between text-success">
+            <span>Знижка за лояльністю:</span>
+            <span>-{{ booking.loyalty_discount_amount|convert:request }}</span>
+          </div>
+          {% endif %}
+
+          {% if booking.promo_code %}
+          <div class="flex justify-between text-success">
+            <span>Промокод ({{ booking.promo_code.code }}):</span>
+            <span>-{{ booking.promo_discount_amount|convert:request }}</span>
+          </div>
+          {% endif %}
         </div>
 
         <div class="flex justify-between items-end pt-2">
-          <span class="text-sm font-bold">Разом:</span>
+          <span class="text-sm font-bold">Разом до сплати:</span>
           <span class="text-3xl font-black text-primary">{{ booking.total_price|convert:request }}</span>
         </div>
 
@@ -128,7 +150,6 @@
             <p class="text-xs text-error font-semibold">Бронювання скасовано.</p>
           {% endif %}
         </div>
-
                 
         {% if booking.status == 'confirmed' %}
             <form method="post" action="{% url 'pay_booking' booking.id %}">

@@ -8,6 +8,7 @@ from allauth.account.admin import EmailAddressAdmin as BaseEmailAddressAdmin
 
 from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
 from unfold.admin import ModelAdmin
+from .models import LoyaltyTier
 
 User = get_user_model()
 
@@ -18,14 +19,29 @@ def is_senior_staff(user):
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin, ModelAdmin):
-    list_display = ("name", "username", "email", "is_staff")
+    list_display = ("username", "email", "trips_count", "loyalty_tier", "is_staff")
+    
+    list_filter = BaseUserAdmin.list_filter + ("is_subscribed_to_newsletter", "loyalty_tier")
 
     fieldsets = (
-            (None, {'fields': ('displayname', 'image',  'info', 'stripe_customer_id', 'telegram_chat_id', 'is_subscribed_to_newsletter')}),
-        ) + BaseUserAdmin.fieldsets
+        (
+            "Інформація про профіль", 
+            {
+                'fields': (
+                    'displayname', 
+                    'image',  
+                    'info', 
+                    'trips_count', 
+                    'loyalty_tier', 
+                    'stripe_customer_id', 
+                    'telegram_chat_id', 
+                    'is_subscribed_to_newsletter'
+                )
+            }
+        ),
+    ) + BaseUserAdmin.fieldsets
 
-    list_filter = BaseUserAdmin.list_filter
-    list_filter += ("is_subscribed_to_newsletter", )
+    search_fields = ("username", "email", "phone", "first_name", "last_name")
 
     form = UserChangeForm
     add_form = UserCreationForm
@@ -85,3 +101,10 @@ admin.site.unregister(EmailAddress)
 class EmailAddressAdmin(BaseEmailAddressAdmin, ModelAdmin):
     list_filter = ("verified", "primary")
     search_fields = ("email", "user__username", "user__email")
+
+
+@admin.register(LoyaltyTier)
+class LoyaltyTierAdmin(ModelAdmin):
+    list_display = ("name", "min_trips", "discount_percent")
+    search_fields = ("name",)
+    ordering = ("min_trips",)

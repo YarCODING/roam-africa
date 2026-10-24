@@ -8,7 +8,7 @@ from unfold.contrib.import_export.forms import ExportForm, ImportForm
 from import_export.admin import ImportExportModelAdmin
 from users.admin import is_senior_staff
 from django.utils.html import format_html
-from .models import Booking
+from .models import Booking, PromoCode
 from tours.models import TourDate
 from unfold.decorators import action
 
@@ -133,3 +133,12 @@ class BookingAdmin(ModelAdmin, ImportExportModelAdmin):
                 return
 
         super().save_model(request, obj, form, change)
+
+
+@admin.register(PromoCode)
+class PromoCodeAdmin(ModelAdmin):
+    list_display = ("code", "discount_type", "discount_value", "times_used", "usage_limit", "valid_from", "valid_to")
+    list_filter = ("discount_type", "valid_from", "valid_to")
+    readonly_fields = ("times_used", )
+    search_fields = ("code",)
+    ordering = ("-valid_to",)

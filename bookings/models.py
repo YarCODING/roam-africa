@@ -1,9 +1,32 @@
+from decimal import Decimal
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from djmoney.models.fields import MoneyField
 from djmoney.money import Money
 from simple_history.models import HistoricalRecords
+
+class PromoCode(models.Model):
+    DISCOUNT_TYPES = (
+        ('percent', 'Відсоток'),
+        ('fixed', 'Фіксована сума'),
+    )
+    
+    code = models.CharField(max_length=50, unique=True, verbose_name="Промокод")
+    discount_type = models.CharField(max_length=10, choices=DISCOUNT_TYPES, default='percent', verbose_name="Тип знижки")
+    discount_value = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Значення знижки")
+    valid_from = models.DateTimeField(verbose_name="Діє з")
+    valid_to = models.DateTimeField(verbose_name="Діє до")
+    usage_limit = models.PositiveIntegerField(default=100, verbose_name="Ліміт використань")
+    times_used = models.PositiveIntegerField(default=0, verbose_name="Скільки разів використано")
+    min_order_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Мінімальна сума туру")
+
+    class Meta:
+        verbose_name = "Промокод"
+        verbose_name_plural = "Промокоди"
+
+    def __str__(self):
+        return self.code
 
 class Booking(models.Model):
     class Status(models.TextChoices):
@@ -28,30 +51,31 @@ class Booking(models.Model):
     customer_name = models.CharField("Ім'я клієнта", max_length=100)
     customer_phone = models.CharField("Телефон", max_length=50)
     customer_email = models.EmailField("Email")
-    persons_count = models.PositiveIntegerField(
-        "Кількість осіб", 
-        default=1,
-        validators=[MinValueValidator(1)]
-    )
+    persons_count = models.PositiveIntegerField("Кількість осіб", default=1, validators=[MinValueValidator(1)])
     comment = models.TextField("Коментар до бронювання", blank=True)
-    status = models.CharField(
-        "Статус заявки", 
-        max_length=20, 
-        choices=Status.choices, 
-        default=Status.NEW,
-        db_index=True
-    )
-    total_price = MoneyField(
-        "Загальна вартість", 
-        max_digits=10, 
-        decimal_places=2, 
-        default=Money(0, 'EUR'),
-        default_currency='EUR',
-    )
+    status = models.CharField("Статус заявки", max_length=20, choices=Status.choices, default=Status.NEW, db_index=True)
 
-    reminder_sent = models.BooleanField(
-        "Нагадування надіслано", default=False
+    original_price = MoneyField("Базова вартість (до знижок)", 
+        max_digits=10, decimal_places=2, default=Money(0, 'EUR'), default_currency='EUR', help_text="Ціна за всіх осіб без урахування знижок")
+    
+    loyalty_discount_amount = MoneyField("Знижка за лояльністю", 
+        max_digits=10, decimal_places=2, default=Money(0, 'EUR'), default_currency='EUR',)
+    
+    promo_code = models.ForeignKey(
+        PromoCode,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Використаний промокод"
     )
+    
+    promo_discount_amount = MoneyField("Знижка за промокодом", 
+        max_digits=10, decimal_places=2, default=Money(0, 'EUR'), default_currency='EUR',)
+
+    total_price = MoneyField("Загальна вартість (до сплати)", 
+        max_digits=10, decimal_places=2, default=Money(0, 'EUR'), default_currency='EUR',)
+
+    reminder_sent = models.BooleanField("Нагадування надіслано", default=False)
     
     created_at = models.DateTimeField("Дата створення", auto_now_add=True)
 
@@ -68,5 +92,16 @@ class Booking(models.Model):
 
     def save(self, *args, **kwargs):
         if self.tour_date and self.tour_date.price:
-            self.total_price = self.tour_date.price * self.persons_count
+            base_sum = self.tour_date.price * self.persons_count
+            if not self.original_price or self.original_price.amount == 0:
+                self.original_price = base_sum
+            
+            loyalty_val = self.loyalty_discount_amount.amount if self.loyalty_discount_amount else Decimal('0')
+            promo_val = self.promo_discount_amount.amount if self.promo_discount_amount else Decimal('0')
+            
+            calculated_total = self.original_price.amount - loyalty_val - promo_val
+            currency = self.original_price.currency
+            
+            self.total_price = Money(max(calculated_total, Decimal('0')), currency)
+            
         super().save(*args, **kwargs)

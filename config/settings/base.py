@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'bookings',
     'bot',
     'newsletter',
+    'blog',
 
     # 3rd party
     'allauth',
@@ -207,9 +208,35 @@ def get_navigation(request):
                     "link": reverse_lazy("admin:bookings_booking_changelist"),
                 },
                 {
+                    "title": "Промокоди",
+                    "icon": "local_offer",
+                    "link": reverse_lazy("admin:bookings_promocode_changelist"),
+                },
+                {
+                    "title": "Рівні лояльності",
+                    "icon": "workspace_premium",
+                    "link": reverse_lazy("admin:users_loyaltytier_changelist"),
+                },
+                {
                     "title": "Розсилки",
                     "icon": "outgoing_mail",
                     "link": reverse_lazy("admin:newsletter_newsletter_changelist"),
+                },
+            ],
+        },
+        {
+            "title": "Керування блогом",
+            "separator": True,
+            "items": [
+                {
+                    "title": "Статті блогу",
+                    "icon": "article",
+                    "link": lambda request: reverse_lazy("admin:blog_article_changelist"),
+                },
+                {
+                    "title": "Категорії",
+                    "icon": "category",
+                    "link": lambda request: reverse_lazy("admin:blog_category_changelist"),
                 },
             ],
         },
@@ -222,6 +249,7 @@ def get_navigation(request):
         navigation.append({
             "title": "Адміністрування",
             "separator": True,
+            "collapsible": True,
             "items": [
                 {
                     "title": "Користувачі", 

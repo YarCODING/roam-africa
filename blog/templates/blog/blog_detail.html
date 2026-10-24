@@ -1,0 +1,57 @@
+{% extends 'layouts/blank.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-12">
+    <div class="mb-6">
+        <a href="{% url 'blog_list' %}" class="btn btn-sm btn-ghost gap-2 text-base-content/70 hover:text-base-content">
+            <i class="fas fa-arrow-left"></i> Назад до списку статей
+        </a>
+    </div>
+
+    <h1 class="text-3xl md:text-5xl font-extrabold text-base-content tracking-tight mb-4">
+        {{ article.title }}
+    </h1>
+
+    <div class="flex flex-wrap items-center gap-6 text-sm text-base-content/60 mb-8 pb-6 border-b border-base-200">
+        {% if article.category %}
+            <span class="badge badge-primary font-medium">{{ article.category.name }}</span>
+        {% endif %}
+        <span><i class="far fa-user mr-1"></i> {{ article.author.name }}</span>
+        <span><i class="far fa-calendar-alt mr-1"></i> {{ article.created_at|date:"d M Y" }}</span>
+        <span><i class="far fa-eye mr-1"></i> Переглядів: {{ article.views_count }}</span>
+    </div>
+
+    {% if article.image %}
+        <div class="rounded-2xl overflow-hidden shadow-xl mb-10 max-h-125">
+            <img src="{{ article.image.url }}" alt="{{ article.title }}" class="w-full h-full object-cover">
+        </div>
+    {% endif %}
+
+    <article class="prose prose-lg max-w-none text-base-content/90 leading-relaxed mb-16">
+        {{ article.content|safe }}
+    </article>
+
+    {% if related_articles %}
+        <div class="mt-16 pt-10 border-t border-base-200">
+            <h3 class="text-2xl font-bold mb-6">Схожі публікації</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {% for related in related_articles %}
+                    <div class="card bg-base-100 shadow-md border border-base-200">
+                        {% if related.image %}
+                            <figure class="h-40 overflow-hidden">
+                                <img src="{{ related.image.url }}" alt="{{ related.title }}" class="w-full h-full object-cover">
+                            </figure>
+                        {% endif %}
+                        <div class="card-body p-4">
+                            <h4 class="font-bold text-base hover:text-primary transition">
+                                <a href="{{ related.get_absolute_url }}">{{ related.title|truncatechars:50 }}</a>
+                            </h4>
+                            <span class="text-xs text-base-content/60 mt-1"><i class="far fa-calendar-alt"></i> {{ related.created_at|date:"d M Y" }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

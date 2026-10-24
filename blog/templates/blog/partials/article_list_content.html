@@ -1,0 +1,83 @@
+{% if page_obj.object_list %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for article in page_obj.object_list %}
+            <div class="card bg-base-100 shadow-xl border border-base-200 hover:shadow-2xl transition duration-300 flex flex-col">
+                {% if article.image %}
+                    <figure class="relative h-56 overflow-hidden">
+                        <img src="{{ article.image.url }}" alt="{{ article.title }}" class="w-full h-full object-cover hover:scale-105 transition duration-500">
+                        {% if article.category %}
+                            <span class="absolute top-4 left-4 badge badge-primary font-semibold uppercase tracking-wider text-xs py-2 px-3">
+                                {{ article.category.name }}
+                            </span>
+                        {% endif %}
+                    </figure>
+                {% endif %}
+                <div class="card-body grow flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center text-xs text-base-content/60 gap-4 mb-2">
+                            <span><i class="far fa-calendar-alt mr-1"></i> {{ article.created_at|date:"d M Y" }}</span>
+                            <span><i class="far fa-eye mr-1"></i> {{ article.views_count }}</span>
+                        </div>
+                        <h2 class="card-title text-xl font-bold hover:text-primary transition">
+                            <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+                        </h2>
+                        <p class="text-base-content/70 text-sm mt-2 line-clamp-3">
+                            {{ article.snippet|default:article.content|striptags|truncatechars:130 }}
+                        </p>
+                    </div>
+                    <div class="card-actions justify-end mt-6 pt-4 border-t border-base-200">
+                        <a href="{{ article.get_absolute_url }}" class="btn btn-sm btn-primary gap-2">
+                            Читати далі <i class="fas fa-arrow-right text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Пагінація -->
+    {% if page_obj.has_other_pages %}
+        <div class="flex justify-center mt-12">
+            <div class="join">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if active_category %}&category={{ active_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="join-item btn"
+                       hx-get="?page={{ page_obj.previous_page_number }}{% if active_category %}&category={{ active_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+                       hx-target="#articles-container"
+                       hx-push-url="true">«</a>
+                {% else %}
+                    <button class="join-item btn btn-disabled">«</button>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <button class="join-item btn btn-active btn-primary">{{ num }}</button>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}{% if active_category %}&category={{ active_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                           class="join-item btn"
+                           hx-get="?page={{ num }}{% if active_category %}&category={{ active_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+                           hx-target="#articles-container"
+                           hx-push-url="true">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if active_category %}&category={{ active_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       class="join-item btn"
+                       hx-get="?page={{ page_obj.next_page_number }}{% if active_category %}&category={{ active_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+                       hx-target="#articles-container"
+                       hx-push-url="true">»</a>
+                {% else %}
+                    <button class="join-item btn btn-disabled">»</button>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+{% else %}
+    <div class="text-center py-20">
+        <div class="text-6xl mb-4 text-base-content/30"><i class="fas fa-search"></i></div>
+        <h3 class="text-2xl font-bold text-base-content">Нічого не знайдено</h3>
+        <p class="text-base-content/60 mt-2">Спробуйте змінити пошуковий запит або вибрати іншу категорію.</p>
+    </div>
+{% endif %}
