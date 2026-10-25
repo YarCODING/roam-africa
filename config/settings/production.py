@@ -59,6 +59,7 @@ STORAGES = {
             "region_name": "eu-west-3",
             "default_acl": "public-read",
             "querystring_auth": False,
+            "custom_domain": "iqythdlpjdmijfzefhun.storage.supabase.co/storage/v1/object/public/media",
         },
     },
     "staticfiles": {
@@ -66,9 +67,7 @@ STORAGES = {
     },
 }
 
-AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL")
-if AWS_S3_ENDPOINT_URL:
-    MEDIA_URL = f"{AWS_S3_ENDPOINT_URL.replace('/storage/v1/s3', '/storage/v1/object/public/')}media/"
+MEDIA_URL = f"https://iqythdlpjdmijfzefhun.storage.supabase.co/storage/v1/object/public/media/"
 
 
 ADMINS = [
