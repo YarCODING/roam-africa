@@ -9,3 +9,10 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         if 'request' not in kwargs:
             kwargs['request'] = self.request
         return form_class(*args, **kwargs)
+
+    def get_client_ip(self, request):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0].strip()
+            return ip
+        return request.META.get('REMOTE_ADDR', '127.0.0.1')
