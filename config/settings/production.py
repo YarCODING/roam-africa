@@ -14,8 +14,6 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-RATELIMIT_USE_X_FORWARDED_FOR = True
-ALLAUTH_TRUSTED_CLIENT_IP_HEADER = "HTTP_X_FORWARDED_FOR"
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True 
 
@@ -52,12 +50,26 @@ MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 STORAGES = {
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "OPTIONS": {
+            "access_key": env("AWS_ACCESS_KEY_ID"),
+            "secret_key": env("AWS_SECRET_ACCESS_KEY"),
+            "bucket_name": "media",
+            "endpoint_url": env("AWS_S3_ENDPOINT_URL"),
+            "region_name": "eu-west-3",
+            "default_acl": "public-read",
+            "querystring_auth": False,
+        },
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
+
+AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL")
+if AWS_S3_ENDPOINT_URL:
+    MEDIA_URL = f"{AWS_S3_ENDPOINT_URL.replace('/storage/v1/s3', '/storage/v1/object/public/')}media/"
+
 
 ADMINS = [
     ('Yaroslav', '20011aric@gmail.com'),
