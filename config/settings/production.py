@@ -28,11 +28,11 @@ MAILERS = {
     'default': {
         'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
         'OPTIONS': {
-            'host': 'smtp.gmail.com',
+            'host': 'smtp-relay.brevo.com',
             'port': 587,
             'use_tls': True,
-            'username': env('EMAIL_USER'),
-            'password': env('EMAIL_PASSWORD'),
+            'username': env('BREVO_USER'),
+            'password': env('BREVO_PASSWORD'),
             'timeout': 10,
         },
     },
