@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from users.views import profile_view
 from bookings.views import stripe_webhook
+from bot.views import telegram_webhook
 
 urlpatterns = [
     path('lenny-where-are-you-1899/', admin.site.urls),
@@ -16,6 +17,7 @@ urlpatterns = [
     path('bookings/', include('bookings.urls')),
     path("blog/", include("blog.urls")),
     path('webhooks/stripe/', stripe_webhook, name='stripe_webhook'),
+    path('webhooks/telegram/', telegram_webhook, name='telegram_webhook'),
     path('@<username>/', profile_view, name="profile"),
 ]
 
