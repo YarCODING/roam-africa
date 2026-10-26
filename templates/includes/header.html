@@ -171,7 +171,7 @@
                     <li><a href="{% url 'tour_list' %}" class="text-base py-3"><i class="fa-solid fa-compass w-5"></i> Тури</a></li>
                     <li><a href="{% url 'review_list' %}" class="text-base py-3"><i class="fa-solid fa-star w-5"></i> Відгуки</a></li>
                     <li><a href="{% url 'about' %}" class="text-base py-3"><i class="fa-solid fa-circle-info w-5"></i> Про нас</a></li>
-                    <li><a href="#" class="text-base py-3"><i class="fa-solid fa-newspaper w-5"></i> Блог</a></li>
+                    <li><a href="{% url 'blog_list' %}" class="text-base py-3"><i class="fa-solid fa-newspaper w-5"></i> Блог</a></li>
                     
                     {% if request.user.is_authenticated %}
                         <div class="divider my-2"></div>
