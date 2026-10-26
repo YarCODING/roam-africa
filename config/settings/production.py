@@ -1,5 +1,6 @@
 from .base import *
 import dj_database_url
+import ssl
 
 DEBUG = False
 
@@ -73,16 +74,27 @@ ADMINS = [
     ('Yaroslav', '20011aric@gmail.com'),
 ]
 
-CELERY_BROKER_URL = env('CLOUDAMQP_URL')
-CELERY_RESULT_BACKEND = env('REDIS_URL')
-
 REDIS_URL = env("REDIS_URL")
+
+CELERY_BROKER_URL = env('CLOUDAMQP_URL')
+CELERY_RESULT_BACKEND = REDIS_URL
+
+REDIS_SSL_OPTIONS = {
+    "ssl_cert_reqs": ssl.CERT_NONE,
+}
 
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": REDIS_URL,
+        "OPTIONS": {
+            "ssl_cert_reqs": ssl.CERT_NONE,
+        }
     }
+}
+
+CELERY_REDIS_BACKEND_USE_SSL = {
+    'ssl_cert_reqs': ssl.CERT_NONE
 }
 
 DATABASES = {
