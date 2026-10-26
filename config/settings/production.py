@@ -25,19 +25,26 @@ TURNSTILE_SITEKEY = env('TURNSTILE_SITEKEY')
 TURNSTILE_SECRET = env('TURNSTILE_SECRET')
 
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
-        'OPTIONS': {
-            'host': 'smtp-relay.brevo.com',
-            'port': 587,
-            'use_tls': True,
-            'username': env('BREVO_USER'),
-            'password': env('BREVO_PASSWORD'),
-            'timeout': 10,
-        },
-    },
-}
+# MAILERS = {
+#     'default': {
+#         'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
+#         'OPTIONS': {
+#             'host': 'smtp-relay.brevo.com',
+#             'port': 587,
+#             'use_tls': True,
+#             'username': env('BREVO_USER'),
+#             'password': env('BREVO_PASSWORD'),
+#             'timeout': 10,
+#         },
+#     },
+# }
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp-relay.brevo.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = env('BREVO_USER')
+EMAIL_HOST_PASSWORD = env('BREVO_PASSWORD')
+EMAIL_TIMEOUT = 10
 
 DEFAULT_FROM_EMAIL = f"Roam Africa <{env('EMAIL_USER')}>"
 
