@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'djmoney',
     'djmoney.contrib.exchange',
     'turnstile',
+    'django_celery_beat',
 
     'django_cleanup.apps.CleanupConfig',
 ]
@@ -370,4 +371,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'send_trip_reminders',
         'schedule': crontab(hour=9, minute=0),
     },
+    'update-exchange-rates-every-day': {
+        'task': 'exchange.tasks.update_rates_task',
+        'schedule': crontab(hour=0, minute=0),
+    },
 }
+
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
