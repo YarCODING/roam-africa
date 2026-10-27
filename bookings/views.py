@@ -40,7 +40,6 @@ def checkout_view(request, slug):
     promo_success = None
     promo_error = None
     total_discount_percent = Decimal('0.00')
-    valid_promo = None
 
     if selected_date_id:
         try:

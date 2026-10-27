@@ -4,6 +4,8 @@ from django.conf import settings
 from django.core.validators import MinValueValidator
 from djmoney.models.fields import MoneyField
 from djmoney.money import Money
+from django.db import transaction
+from django.db.models import F
 from simple_history.models import HistoricalRecords
 
 class PromoCode(models.Model):
@@ -91,17 +93,38 @@ class Booking(models.Model):
         return f"Бронювання #{self.id} — {self.customer_name} ({self.tour_date.tour.title})"
 
     def save(self, *args, **kwargs):
-        if self.tour_date and self.tour_date.price:
-            base_sum = self.tour_date.price * self.persons_count
-            if not self.original_price or self.original_price.amount == 0:
-                self.original_price = base_sum
-            
-            loyalty_val = self.loyalty_discount_amount.amount if self.loyalty_discount_amount else Decimal('0')
-            promo_val = self.promo_discount_amount.amount if self.promo_discount_amount else Decimal('0')
-            
-            calculated_total = self.original_price.amount - loyalty_val - promo_val
-            currency = self.original_price.currency
-            
-            self.total_price = Money(max(calculated_total, Decimal('0')), currency)
-            
-        super().save(*args, **kwargs)
+        with transaction.atomic():
+            if self.pk:
+                original = Booking.objects.select_related('tour_date').get(pk=self.pk)
+                
+                if self.status == self.Status.CANCELED and original.status != self.Status.CANCELED:
+                    tour_date = self.tour_date
+                    tour_date.available_seats = F('available_seats') + self.persons_count
+                    if tour_date.status == 'sold_out':
+                        tour_date.status = 'open'
+                    tour_date.save()
+                    tour_date.refresh_from_db()
+                
+                elif original.status == self.Status.CANCELED and self.status != self.Status.CANCELED:
+                    tour_date = self.tour_date
+                    if tour_date.available_seats < self.persons_count:
+                        raise ValueError("Недостатньо вільних місць для відновлення цього бронювання.")
+                    tour_date.available_seats = F('available_seats') - self.persons_count
+                    if tour_date.available_seats == 0:
+                        tour_date.status = 'sold_out'
+                    tour_date.save()
+                    tour_date.refresh_from_db()
+
+            if self.tour_date and self.tour_date.price:
+                base_sum = self.tour_date.price * self.persons_count
+                if not self.original_price or self.original_price.amount == 0:
+                    self.original_price = base_sum
+                
+                loyalty_val = self.loyalty_discount_amount.amount if self.loyalty_discount_amount else Decimal('0')
+                promo_val = self.promo_discount_amount.amount if self.promo_discount_amount else Decimal('0')
+                
+                calculated_total = self.original_price.amount - loyalty_val - promo_val
+                currency = self.original_price.currency
+                
+                self.total_price = Money(max(calculated_total, Decimal('0')), currency)
+            super().save(*args, **kwargs)

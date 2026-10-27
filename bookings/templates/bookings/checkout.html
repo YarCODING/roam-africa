@@ -120,7 +120,7 @@
               hx-trigger="change" 
               class="select select-bordered w-full rounded-2xl focus:select-primary transition-all text-base" required>
               <option value="" disabled selected>Виберіть зі списку...</option>
-              {% for date in tour.dates.all %}
+              {% for date in tour.upcoming_dates %}
                 {% if date.status != 'sold_out' and date.status != 'canceled' %}
                   {% with converted_price=date.price|convert:request %}
                     <option value="{{ date.id }}" 

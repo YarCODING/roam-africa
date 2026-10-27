@@ -96,6 +96,10 @@ class Tour(models.Model):
     def is_new(self):
         return self.created_at >= timezone.now() - timedelta(days=7)
 
+    @property
+    def upcoming_dates(self):
+        return self.dates.filter(start_date__gte=timezone.now().date()).order_by('start_date')
+
     class Meta:
         verbose_name = "Тур"
         verbose_name_plural = "Тури"

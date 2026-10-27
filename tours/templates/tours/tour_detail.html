@@ -311,7 +311,7 @@
 		<h2 class="text-2xl font-bold text-base-content">Розклад заїздів</h2>
 
 		<div class="space-y-3">
-		{% for date in tour.dates.all %}
+		{% for date in tour.upcoming_dates %}
 			<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-2xl bg-base-200/50 border border-base-200 gap-4 transition-all hover:border-primary/30">
 
 			<div class="space-y-1">
@@ -342,7 +342,6 @@
 				</div>
 
 				{% if date.status != 'sold_out' and date.status != 'canceled' %}
-				<!-- Додали класс select-date-btn и data-date-id -->
 				<button type="button" data-date-id="{{ date.id }}" class="btn btn-primary btn-sm rounded-xl select-date-btn">Обрати</button>
 				{% else %}
 				<button class="btn btn-disabled btn-sm rounded-xl" disabled>Зайнято</button>
@@ -506,7 +505,7 @@
 				</label>
 				<select name="tour_date" id="tour-date-select" class="select select-bordered w-full rounded-xl focus:select-primary" required>
 					<option value="" disabled selected>Виберіть зі списку...</option>
-					{% for date in tour.dates.all %}
+					{% for date in tour.upcoming_dates %}
 						{% if date.status != 'sold_out' and date.status != 'canceled' %}
 						<option value="{{ date.id }}">
 							{{ date.start_date|date:"d.m" }} - {{ date.end_date|date:"d.m.Y" }} (€{{ date.price|convert:request }})
@@ -527,15 +526,11 @@
 
 		<div class="pt-2 border-t border-base-200 text-xs text-base-content/60 space-y-2">
 		  <div class="flex items-center gap-2">
-			<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-			  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-			</svg>
+			<i class="fa-solid fa-check h-4 w-4 text-success"></i>
 			<span>Безкоштовна консультація менеджера</span>
 		  </div>
 		  <div class="flex items-center gap-2">
-			<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-			  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-			</svg>
+			<i class="fa-solid fa-check h-4 w-4 text-success"></i>
 			<span>Швидке підтвердження бронювання</span>
 		  </div>
 		</div>
