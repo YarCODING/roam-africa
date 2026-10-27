@@ -2,6 +2,7 @@ import json
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from tours.models import Country, Tour
+from django.http import HttpResponse
 
 def home_view(request):
     countries = Country.objects.all()
@@ -70,3 +71,7 @@ def set_currency(request):
         request.session['currency'] = currency
     
     return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+def ping(request):
+    return HttpResponse("pong", content_type="text/plain")
