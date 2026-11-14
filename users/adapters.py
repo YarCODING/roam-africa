@@ -24,16 +24,23 @@ class CustomAccountAdapter(DefaultAccountAdapter):
             **context,
         }
 
-        subject = self.render_mail(template_prefix, email, ctx, subject_only=True)
-        subject = ''.join(subject.splitlines())
+        message_obj = super().render_mail(template_prefix, email, ctx)
+        subject = message_obj.subject
 
-        message = self.render_mail(template_prefix, email, ctx, prefix='txt')
-        html_message = self.render_mail(
-            template_prefix, email, ctx, prefix='html'
-        )
+        activate_url = context.get('activate_url', '')
+
+        body = f"""
+                <p>Дякуємо за реєстрацію! Для підтвердження вашої електронної пошти, будь ласка, перейдіть за посиланням:</p>
+                <p style="margin: 20px 0;">
+                    <a href="{activate_url}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                        Підтвердити пошту
+                    </a>
+                </p>
+                <p>Якщо ви не створювали акаунт, просто проігноруйте цей лист.</p>
+            """
 
         send_email_task.delay(
-            email,
-            subject,
-            message,
+            email=email if isinstance(email, str) else email[0],
+            title=subject,
+            body=body,
         )
