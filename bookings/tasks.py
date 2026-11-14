@@ -3,6 +3,7 @@ from django.utils import timezone
 from datetime import timedelta
 from .models import Booking
 from .services import change_booking_status
+from django.core.management import call_command
 from newsletter.tasks import send_telegram_message_task
 
 @shared_task(name="update_booking_statuses", bind=True, ignore_result=True)
@@ -67,3 +68,13 @@ def send_trip_reminders_task():
   return (
       f'Надіслано нагадувань про поїздки за завтра ({tomorrow}): {count} шт.'
   )
+
+
+
+@shared_task(name="update_rates")
+def update_rates_task():
+    try:
+        call_command('update_rates')
+        return "Exchange rates updated successfully."
+    except Exception as e:
+        return f"Failed to update exchange rates: {str(e)}"

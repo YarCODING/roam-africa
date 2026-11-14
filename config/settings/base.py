@@ -372,7 +372,7 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(hour=9, minute=0),
     },
     'update-exchange-rates-every-day': {
-        'task': 'exchange.tasks.update_rates_task',
+        'task': 'update_rates',
         'schedule': crontab(hour=0, minute=0),
     },
 }
