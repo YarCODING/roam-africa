@@ -1,4 +1,5 @@
 from allauth.account.adapter import DefaultAccountAdapter
+from newsletter.tasks import send_email_task
 
 class CustomAccountAdapter(DefaultAccountAdapter):
     def get_signup_form_class(self):
@@ -16,3 +17,24 @@ class CustomAccountAdapter(DefaultAccountAdapter):
             ip = x_forwarded_for.split(',')[0].strip()
             return ip
         return request.META.get('REMOTE_ADDR', '127.0.0.1')
+
+    def send_mail(self, template_prefix, email, context):
+        ctx = {
+            'email': email,
+            **context,
+        }
+
+        subject = self.render_mail(template_prefix, email, ctx, subject_only=True)
+        subject = ''.join(subject.splitlines())
+
+        message = self.render_mail(template_prefix, email, ctx, prefix='txt')
+        html_message = self.render_mail(
+            template_prefix, email, ctx, prefix='html'
+        )
+
+        send_email_task.delay(
+            subject=subject,
+            message=message,
+            recipient_list=[email],
+            html_message=html_message if html_message else None,
+        )
