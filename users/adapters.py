@@ -32,7 +32,7 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         body = f"""
                 <p>Дякуємо за реєстрацію! Для підтвердження вашої електронної пошти, будь ласка, перейдіть за посиланням:</p>
                 <p style="margin: 20px 0;">
-                    <a href="{activate_url}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                    <a href="{activate_url}" style="background-color: #9E472A; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
                         Підтвердити пошту
                     </a>
                 </p>
