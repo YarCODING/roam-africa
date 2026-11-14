@@ -33,8 +33,7 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         )
 
         send_email_task.delay(
-            subject=subject,
-            message=message,
-            recipient_list=[email],
-            html_message=html_message if html_message else None,
+            email,
+            subject,
+            message,
         )
