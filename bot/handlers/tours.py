@@ -1,5 +1,5 @@
 from aiogram import Router, F
-from aiogram.types import CallbackQuery, Message, FSInputFile, InputMediaPhoto
+from aiogram.types import CallbackQuery, Message, InputMediaPhoto
 
 from ..keyboards import get_tours_inline_keyboard, get_tour_detail_keyboard
 from ..services import get_active_tours, get_tour_details
@@ -59,9 +59,8 @@ async def show_tour_detail(callback: CallbackQuery):
     )
 
     if tour.cover_image:
-        photo = FSInputFile(tour.cover_image.path)
         await callback.message.answer_photo(
-            photo=photo, caption=text, parse_mode="HTML",
+            photo=tour.cover_image.url, caption=text, parse_mode="HTML",
             reply_markup=get_tour_detail_keyboard(tour.id)
         )
     else:
@@ -109,7 +108,7 @@ async def show_tour_gallery(callback: CallbackQuery):
     for idx, img_obj in enumerate(images[:10]):
         if img_obj.image:
             caption = f"📸 {tour.title}" if idx == 0 else ""
-            media_group.append(InputMediaPhoto(media=FSInputFile(img_obj.image.path), caption=caption))
+            media_group.append(InputMediaPhoto(media=img_obj.image.url, caption=caption))
 
     if media_group:
         await callback.message.answer_media_group(media=media_group)
